@@ -1,0 +1,17 @@
+# log-level: 2
+# log-json: false
+# log-file: ""
+# listen: ":8080"
+# server-crt: ""
+# server-key: ""
+# upstream: ""
+# upstream-cors: ""
+# session-lifetime: 5
+# client-id: ""
+# client-secret: ""
+# scopes: ""
+# redirect-url: ""
+# auth-url: ""
+# token-url: ""
+# userinfo-url: ""
+# state-lifetime: 5
