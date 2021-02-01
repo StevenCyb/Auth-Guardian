@@ -1,10 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.1.1] - 2021-02-01
+### Added
+- Options to forward userinfo and/or access-token
+- Test option to run application in test mode (run a service behind which mirrors request)
+### Changes
+- Roadmap re-organized 
+- Error printing on oauth.go (did not use logging previously)
+- Add changelog hint to contribution document 
+- Move cookie.go, session.go and utils.go to package util
 
-## [0.1.0] - 2014-05-31
+## [0.1.0] - 2021-01-31
 ### Added
 - Basic structure of the software
 - Logging handler to log in JSON or formatted string, and to log to a file

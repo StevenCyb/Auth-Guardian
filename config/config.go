@@ -4,6 +4,9 @@ import (
 	"strings"
 )
 
+// TestMode specifies if is running in test mode
+var TestMode bool
+
 // LogLevel set n for
 // any Panic
 // n >= 1 Errors
@@ -35,6 +38,12 @@ var IsHTTPS bool
 
 // CORSUpstream is a flag to mark that the upstream not accept CORS
 var CORSUpstream bool
+
+// ForwardAccessToken specifies whether the access token should be forwarded.
+var ForwardAccessToken bool
+
+// ForwardUserinfo specifies whether the userinfo should be forwarded
+var ForwardUserinfo bool
 
 // SessionLifetime specifies the lifetime of a session (minutes)
 var SessionLifetime int
@@ -68,6 +77,11 @@ func Load() bool {
 	definition := map[string]map[string]interface{}{
 		"version": {
 			"desc":    "Get the version.",
+			"type":    "bool",
+			"default": false,
+		},
+		"test-mode": {
+			"desc":    "Specifies if is running in test mode.",
 			"type":    "bool",
 			"default": false,
 		},
@@ -108,6 +122,16 @@ func Load() bool {
 		},
 		"upstream-cors": {
 			"desc":    "Specifies that the upstream not accept CORS and is not on the same domain.",
+			"type":    "bool",
+			"default": false,
+		},
+		"forward-userinfo": {
+			"desc":    "Specifies whether the userinfo should be forwarded.",
+			"type":    "bool",
+			"default": false,
+		},
+		"forward-access-token": {
+			"desc":    "Specifies whether the access token should be forwarded.",
 			"type":    "bool",
 			"default": false,
 		},
@@ -168,6 +192,8 @@ func Load() bool {
 	getConfigFromArguments(&definition)
 
 	// Set mostly priories config value
+	TestMode = getMostlyPrioriesConfigKey(definition["test-mode"]).(bool)
+
 	LogLevel = getMostlyPrioriesConfigKey(definition["log-level"]).(int)
 	LogJSON = getMostlyPrioriesConfigKey(definition["log-json"]).(bool)
 	LogFile = getMostlyPrioriesConfigKey(definition["log-file"]).(string)
@@ -180,6 +206,8 @@ func Load() bool {
 	Upstream = getMostlyPrioriesConfigKey(definition["upstream"]).(string)
 	CORSUpstream = getMostlyPrioriesConfigKey(definition["upstream-cors"]).(bool)
 
+	ForwardAccessToken = getMostlyPrioriesConfigKey(definition["forward-access-token"]).(bool)
+	ForwardUserinfo = getMostlyPrioriesConfigKey(definition["forward-userinfo"]).(bool)
 	SessionLifetime = getMostlyPrioriesConfigKey(definition["session-lifetime"]).(int)
 
 	ClientID = getMostlyPrioriesConfigKey(definition["client-id"]).(string)

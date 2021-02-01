@@ -4,6 +4,7 @@ import (
 	"auth-guardian/authmiddleware"
 	"auth-guardian/config"
 	"auth-guardian/logging"
+	"auth-guardian/testservice"
 	"auth-guardian/upstream"
 	"fmt"
 	"log"
@@ -14,17 +15,18 @@ func main() {
 	// Load config
 	version := config.Load()
 	if version {
-		fmt.Println("Version: 0.1.0")
+		fmt.Println("Version: 0.1.1")
 		return
 	}
 
-	// Log used config
-	logging.Debug(&map[string]string{"file": "config.go", "Function": "Load", "event": fmt.Sprintf("Set config value LogLevel:%v", config.LogLevel)})
-	logging.Debug(&map[string]string{"file": "config.go", "Function": "Load", "event": fmt.Sprintf("Set config value LogJSON:%v", config.LogJSON)})
-	logging.Debug(&map[string]string{"file": "config.go", "Function": "Load", "event": fmt.Sprintf("Set config value Listen:%v", config.Listen)})
-	logging.Debug(&map[string]string{"file": "config.go", "Function": "Load", "event": fmt.Sprintf("Set config value ServerCrt:%v", config.ServerCrt)})
-	logging.Debug(&map[string]string{"file": "config.go", "Function": "Load", "event": fmt.Sprintf("Set config value ServerKey:%v", config.ServerKey)})
-	logging.Debug(&map[string]string{"file": "config.go", "Function": "Load", "event": fmt.Sprintf("Set config value Upstream:%v", config.Upstream)})
+	// Run test service if test mode enabled
+	if config.TestMode {
+		// Overrite config
+		config.Upstream = "http://localhost:3001"
+
+		// Run test service
+		go testservice.Run()
+	}
 
 	// Initialize the OAuth middleware
 	authmiddleware.InitOAuthMiddleware()

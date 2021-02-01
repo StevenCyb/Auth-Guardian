@@ -61,6 +61,9 @@ func ProxyHandler() http.Handler {
 		// Set CORS header
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
+		// Set configured forward infromations in cookie
+		setForwardInformations(r, r) // TODO test if this is possible
+
 		ReverseProxy.ServeHTTP(w, r)
 	})
 }

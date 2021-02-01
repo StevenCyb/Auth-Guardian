@@ -1,4 +1,4 @@
-package authmiddleware
+package util
 
 import (
 	"encoding/base64"

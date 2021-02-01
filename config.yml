@@ -6,6 +6,8 @@
 # server-key: ""
 # upstream: ""
 # upstream-cors: ""
+# forward-userinfo: false
+# forward-access-token: false
 # session-lifetime: 5
 # client-id: ""
 # client-secret: ""

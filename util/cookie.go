@@ -1,4 +1,4 @@
-package authmiddleware
+package util
 
 import (
 	"auth-guardian/config"

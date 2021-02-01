@@ -9,10 +9,12 @@ The documentation is located [here](doc/doc.md), changelog [here](doc/changelog.
 
 ## Roadmap
 ### 0.2.0
-- Endpoint: Health
-- Endpoint: Metrics
-- Config-Option for which infos should be forwarded to upstream (userinfo and/or access_token)
+Add SAML support (nee to rename project in this case since SAML != oauth)
+### Release Alpha-0.2.0
 ### 0.3.0
+Add LDAP support (nee to rename project in this case since SAML != oauth)
+### Release Alpha-0.3.0
+### 0.4.0
 Add rule middleware (strategy needs to be planed first) | oauthmiddleware -> rulemiddleware -> upstream
 ```yaml
 rules:
@@ -23,14 +25,10 @@ rules:
     query_parameter: {key: value}
     json_body_parameter: {key: value}
 ```
-### 0.4.0
-Add SAML support (nee to rename project in this case since SAML != oauth)
-### 0.5.0
-Add LDAP support (nee to rename project in this case since SAML != oauth)
+### Release Alpha-0.4.0
+### 0.4.1
+- Create docker image
+- Create helm chart
+### Release Alpha-0.4.1
 ### 0.5.1
-Create docker image
-### 0.5.2
-Create helm chart
-##### Go public
-### 0.5.3
 - Implement tests

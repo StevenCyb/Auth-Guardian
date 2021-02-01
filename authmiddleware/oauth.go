@@ -3,6 +3,9 @@ package authmiddleware
 import (
 	"auth-guardian/config"
 	"auth-guardian/logging"
+	"auth-guardian/util"
+	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -41,7 +44,7 @@ func InitOAuthMiddleware() {
 // OAuthSessionRefresh refresh token and userinfo
 func OAuthSessionRefresh() {
 	// Lock session map
-	SessionMapLock.Lock()
+	util.SessionMapLock.Lock()
 
 	logging.Debug(&map[string]string{
 		"file":     "oauth.go",
@@ -49,7 +52,7 @@ func OAuthSessionRefresh() {
 		"event":    "Run OAuth session refresh job",
 	})
 
-	for _, session := range SessionMap {
+	for _, session := range util.SessionMap {
 		if sat, err := session.Get("access_token"); err == nil {
 			token := sat.(*oauth2.Token)
 			if token.RefreshToken != "" && token.Expiry.Add(-1*time.Minute).Unix() <= time.Now().Unix() {
@@ -57,7 +60,7 @@ func OAuthSessionRefresh() {
 				refreshToken(token)
 
 				// Store new access token in session
-				session.Set("access_token", token)
+				setAccessToken(session, token)
 
 				// Get claims from access token and set it to session if not error
 				parseClaims(session, token)
@@ -71,7 +74,7 @@ func OAuthSessionRefresh() {
 	}
 
 	// Unlock session map
-	SessionMapLock.Unlock()
+	util.SessionMapLock.Unlock()
 
 	// Wait one minute to repeat job
 	time.AfterFunc(1*time.Minute, func() { OAuthSessionRefresh() })
@@ -92,19 +95,24 @@ func OAuthMiddleware(next http.Handler) http.Handler {
 		})
 
 		// Start a session
-		session := SessionStart(w, r)
+		session := util.SessionStart(w, r)
 
 		// Check if session has access token, if yes serve to next handler
 		if sat, err := session.Get("access_token"); err == nil && fmt.Sprint(sat.(*oauth2.Token).AccessToken) != "" {
-			logging.Debug(&map[string]string{"file": "oauth.go", "Function": "OAuthMiddleware", "event": "Forward"})
-			next.ServeHTTP(w, r)
+			logging.Debug(&map[string]string{"file": "oauth.go", "Function": "OAuthMiddleware", "event": "Forward with context"})
+
+			// Set session id to context
+			ctx := context.WithValue(r.Context(), util.ContextKey("session_id"), session.SID)
+
+			// Serve to next handler with context
+			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 
 		// If its a callback
 		if r.URL.Path == "/callback" {
 			// Get state
-			state, err := GetCookieValue(r, "OG_STATE")
+			state, err := util.GetCookieValue(r, "OG_STATE")
 			if err != nil {
 				logging.Error(&map[string]string{
 					"file":     "oauth.go",
@@ -117,7 +125,7 @@ func OAuthMiddleware(next http.Handler) http.Handler {
 			}
 
 			// Destroy state cookie
-			DestroyCookie(w, "OG_STATE", http.SameSiteLaxMode)
+			util.DestroyCookie(w, "OG_STATE", http.SameSiteLaxMode)
 			logging.Debug(&map[string]string{
 				"file":     "oauth.go",
 				"Function": "OAuthMiddleware",
@@ -160,7 +168,7 @@ func OAuthMiddleware(next http.Handler) http.Handler {
 			}
 
 			// Store access token in session
-			session.Set("access_token", token)
+			setAccessToken(session, token)
 
 			// Get claims from access token and set it to session if not error
 			parseClaims(session, token)
@@ -198,8 +206,8 @@ func OAuthMiddleware(next http.Handler) http.Handler {
 		session.Set("path_before_redirect", fmt.Sprintf("%v", r.URL))
 
 		// Redirect to auth url
-		state := GetRandomBase64String(16)
-		SetCookie(w, "OG_STATE", state, http.SameSiteLaxMode, time.Duration(config.StateLifetime))
+		state := util.GetRandomBase64String(16)
+		util.SetCookie(w, "OG_STATE", state, http.SameSiteLaxMode, time.Duration(config.StateLifetime))
 
 		url := oauthConfig.AuthCodeURL(state, oauth2.AccessTypeOnline)
 		logging.Debug(&map[string]string{
@@ -214,7 +222,7 @@ func OAuthMiddleware(next http.Handler) http.Handler {
 }
 
 // Parse claims of token and set to session
-func parseClaims(session *Session, token *oauth2.Token) {
+func parseClaims(session *util.Session, token *oauth2.Token) {
 	var claims map[string]interface{}
 	tokenClaimString, err := jwt.ParseSigned(token.AccessToken)
 	if err == nil {
@@ -223,8 +231,16 @@ func parseClaims(session *Session, token *oauth2.Token) {
 	}
 }
 
+// setAccessToken
+func setAccessToken(session *util.Session, token *oauth2.Token) {
+	session.Set("access_token", token)
+
+	accessTokenString, _ := json.Marshal(*token)
+	session.Set("access_token_string", base64.StdEncoding.EncodeToString(accessTokenString))
+}
+
 // Get userinfo and set to session
-func getUserinfo(session *Session, token *oauth2.Token) {
+func getUserinfo(session *util.Session, token *oauth2.Token) {
 	logging.Debug(&map[string]string{
 		"file":     "oauth.go",
 		"Function": "OAuthMiddleware",
@@ -255,7 +271,7 @@ func getUserinfo(session *Session, token *oauth2.Token) {
 	}
 
 	// Parse userinfo
-	userinfo, err := JSONToMap(string(body))
+	userinfo, err := util.JSONToMap(string(body))
 	if err != nil {
 		logging.Warning(&map[string]string{
 			"file":     "oauth.go",
@@ -263,7 +279,11 @@ func getUserinfo(session *Session, token *oauth2.Token) {
 			"warning":  "Failed to map userinfo:" + err.Error(),
 		})
 	}
+
 	session.Set("userinfo", userinfo)
+
+	userinfoString, _ := json.Marshal(userinfo)
+	session.Set("userinfo_string", base64.StdEncoding.EncodeToString(userinfoString))
 }
 
 // Request a new token
@@ -288,7 +308,11 @@ func refreshToken(token *oauth2.Token) {
 
 	req, err := http.NewRequest("POST", config.TokenURL, strings.NewReader(v.Encode()))
 	if err != nil {
-		fmt.Println(err.Error())
+		logging.Error(&map[string]string{
+			"file":     "oauth.go",
+			"Function": "refreshToken",
+			"error":    "Constructing of refresh token request failed - " + err.Error(),
+		})
 		return
 	}
 	req.Header.Add("content-type", "application/x-www-form-urlencoded")
@@ -296,7 +320,11 @@ func refreshToken(token *oauth2.Token) {
 	// Do request
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		fmt.Println(err.Error())
+		logging.Error(&map[string]string{
+			"file":     "oauth.go",
+			"Function": "refreshToken",
+			"error":    "Request of refresh token request failed - " + err.Error(),
+		})
 		return
 	}
 	defer res.Body.Close()
@@ -304,7 +332,11 @@ func refreshToken(token *oauth2.Token) {
 	// Read response body
 	body, err := ioutil.ReadAll(io.LimitReader(res.Body, 1<<20))
 	if err != nil {
-		fmt.Printf("cannot fetch token: %v\n", err.Error())
+		logging.Error(&map[string]string{
+			"file":     "oauth.go",
+			"Function": "refreshToken",
+			"error":    "Cannot fetch refresh token - " + err.Error(),
+		})
 		return
 	}
 
@@ -313,7 +345,11 @@ func refreshToken(token *oauth2.Token) {
 	if content == "application/x-www-form-urlencoded" || content == "text/plain" {
 		values, err := url.ParseQuery(string(body))
 		if err != nil {
-			fmt.Println(err.Error())
+			logging.Error(&map[string]string{
+				"file":     "oauth.go",
+				"Function": "refreshToken",
+				"error":    "Query parsing of access token failed - " + err.Error(),
+			})
 			return
 		}
 
@@ -337,7 +373,11 @@ func refreshToken(token *oauth2.Token) {
 		}{}
 
 		if err = json.Unmarshal(body, &tj); err != nil {
-			fmt.Println(err.Error())
+			logging.Error(&map[string]string{
+				"file":     "oauth.go",
+				"Function": "refreshToken",
+				"error":    "Unmarshal of access token failed - " + err.Error(),
+			})
 			return
 		}
 

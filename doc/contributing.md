@@ -9,7 +9,7 @@ Try to provide the necessary information so that your pull request can be unders
 * [Reporting Bugs](#reporting-bugs)
 * [Suggesting Enhancements](#suggesting-enhancements) 
 * [Code Styleguide](#code-styleguide)
-* [Update the Documentation](#update-the-documentation)
+* [Update the Documentation and Changelog](#update-the-documentation-and-changelog)
 * [Versioning](#versioning)
 * [Git Commit Messages](#git-commit-message)
 
@@ -26,9 +26,10 @@ When you are creating an enhancement suggestion, please include as many details 
 - Try to not use external packages if possible 
 - Add additional comments in the line before and not at the end!
 
-### Update the Documentation
+### Update the Documentation and Changelog
 Most changes require an adjustment of the documentation. 
 Check the full documentation for possible points that would need to be adjusted together with your contribution.
+In addition, the changes should be included in the changelog.
 
 ### Versioning
 Let us keep the versioning simple. 

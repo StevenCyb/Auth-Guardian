@@ -2,13 +2,11 @@ package config
 
 import (
 	"flag"
-	"fmt"
 )
 
 func getConfigFromArguments(definition *map[string]map[string]interface{}) {
 	// Register arguments
 	for key := range *definition {
-		fmt.Println((*definition)[key])
 		switch (*definition)[key]["type"] {
 		case "int":
 			(*definition)[key]["arg"] = flag.Int(key, (*definition)[key]["default"].(int), (*definition)[key]["desc"].(string))

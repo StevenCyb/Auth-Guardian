@@ -20,8 +20,8 @@ func InitCORSReverseProxy() {
 func CORSProxyHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Set forward header
-		// r.Header.Add("X-Forwarded-Host", r.Host)
-		// r.Header.Add("X-Origin-Host", Origin.Host)
+		r.Header.Add("X-Forwarded-Host", r.Host)
+		r.Header.Add("X-Origin-Host", Origin.Host)
 
 		// Copy request and modify it by setting the upstream
 		nextReq := r.Clone(context.TODO())
@@ -31,9 +31,9 @@ func CORSProxyHandler() http.Handler {
 		nextReq.URL.Scheme = Origin.Scheme
 
 		// Set referer
-		// if nextReq.Header.Get("referer") != "" {
-		// 	nextReq.Header.Set("referer", r.Header.Get("referer"))
-		// }
+		if nextReq.Header.Get("referer") != "" {
+			nextReq.Header.Set("referer", r.Header.Get("referer"))
+		}
 
 		logging.Debug(&map[string]string{
 			"file":              "cors-upstream.go",
@@ -51,6 +51,9 @@ func CORSProxyHandler() http.Handler {
 			"forward_req_query": nextReq.URL.RawQuery,
 		})
 
+		// Set configured forward information's in cookie
+		setForwardInformations(r, nextReq)
+
 		// Do request
 		client := http.Client{}
 		nextRes, err := client.Do(nextReq)
@@ -60,7 +63,6 @@ func CORSProxyHandler() http.Handler {
 		}
 		defer nextRes.Body.Close()
 
-		// Send response back
 		// Set header
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		for key, valueSlice := range nextRes.Header {
@@ -72,7 +74,7 @@ func CORSProxyHandler() http.Handler {
 			}
 		}
 
-		// Set body content
+		// Set body content and send response back to requester
 		body, err := ioutil.ReadAll(nextRes.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
