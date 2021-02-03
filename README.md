@@ -3,14 +3,11 @@ Auth-Guardian is an **auth**entication and rules based **auth**orization reverse
 Authentication is provided via generic OAuth.
 Authorization (not implemented yet) should be rule-based and as flexible as possible.
 
-The documentation is located [here](doc/doc.md), changelog [here](doc/changelog.md) and the contribution guidelines [here](doc/contributing.md).
+The documentation is located [here](doc/doc.md), changelog [here](doc/CHANGELOG.md) and the contribution guidelines [here](doc/contributing.md).
 
 ![Overview](doc/media/overview.jpg)
 
 ## Roadmap
-### 0.2.0
-Add SAML support (nee to rename project in this case since SAML != oauth)
-### Release Alpha-0.2.0
 ### 0.3.0
 Add LDAP support (nee to rename project in this case since SAML != oauth)
 ### Release Alpha-0.3.0

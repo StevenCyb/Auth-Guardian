@@ -44,8 +44,8 @@ func DirectorHandler(r *http.Request) {
 	r.Header.Add("X-Origin-Host", Origin.Host)
 }
 
-// ProxyHandler return a handler for default proxy
-func ProxyHandler() http.Handler {
+// DefaultProxyHandler return a handler for default proxy
+func DefaultProxyHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logging.Debug(&map[string]string{
 			"file":       "default-upstream.go",
@@ -62,7 +62,7 @@ func ProxyHandler() http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		// Set configured forward infromations in cookie
-		setForwardInformations(r, r) // TODO test if this is possible
+		setForwardInformations(r, r)
 
 		ReverseProxy.ServeHTTP(w, r)
 	})

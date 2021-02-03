@@ -21,7 +21,7 @@ func setForwardInformations(sourceReq *http.Request, targetReq *http.Request) {
 			})
 
 			session := util.SessionMap[sessionID.(string)]
-			if config.ForwardAccessToken {
+			if config.ForwardUserinfo {
 				userinfo, err := session.Get("userinfo_string")
 				if err == nil {
 					targetReq.AddCookie(&http.Cookie{Name: "userinfo", Value: userinfo.(string)})
@@ -29,11 +29,11 @@ func setForwardInformations(sourceReq *http.Request, targetReq *http.Request) {
 					logging.Warning(&map[string]string{
 						"file":     "upstream/utils.go",
 						"Function": "setForwardInformations",
-						"event":    "Userinfo not in session",
+						"warning":  "Userinfo not in session",
 					})
 				}
 			}
-			if config.ForwardUserinfo {
+			if config.ForwardAccessToken {
 				accessToken, err := session.Get("access_token_string")
 				if err == nil {
 					targetReq.AddCookie(&http.Cookie{Name: "access_token", Value: accessToken.(string)})
@@ -41,7 +41,7 @@ func setForwardInformations(sourceReq *http.Request, targetReq *http.Request) {
 					logging.Warning(&map[string]string{
 						"file":     "upstream/utils.go",
 						"Function": "setForwardInformations",
-						"event":    "Access token not in session",
+						"warning":  "Access token not in session",
 					})
 				}
 			}
@@ -49,7 +49,7 @@ func setForwardInformations(sourceReq *http.Request, targetReq *http.Request) {
 			logging.Warning(&map[string]string{
 				"file":     "upstream/utils.go",
 				"Function": "setForwardInformations",
-				"event":    "Session ID not in context",
+				"warning":  "Session ID not in context",
 			})
 		}
 	}

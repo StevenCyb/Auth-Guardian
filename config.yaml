@@ -17,3 +17,5 @@
 # token-url: ""
 # userinfo-url: ""
 # state-lifetime: 5
+# saml-metadata-url: ""
+# self-root-url: ""

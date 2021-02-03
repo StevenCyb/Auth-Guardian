@@ -72,6 +72,18 @@ var UserinfoURL string
 // StateLifetime specifies how long a state is valid (minutes)
 var StateLifetime int
 
+// IdpMetadataURL specifies the URL to the IDP metadata
+var IdpMetadataURL string
+
+// SelfRootURL specifies the root URL to self
+var SelfRootURL string
+
+// SAMLCrt specifies the path to the crt file for SAML
+var SAMLCrt string
+
+// SAMLKey specifies the path to the key file for SAML
+var SAMLKey string
+
 // Load loads the config
 func Load() bool {
 	definition := map[string]map[string]interface{}{
@@ -180,6 +192,26 @@ func Load() bool {
 			"type":    "int",
 			"default": 5,
 		},
+		"saml-metadata-url": {
+			"desc":    "Specifies the URL to the IDP metadata.",
+			"type":    "string",
+			"default": "",
+		},
+		"self-root-url": {
+			"desc":    "Specifies the root URL to self.",
+			"type":    "string",
+			"default": "",
+		},
+		"saml-crt": {
+			"desc":    "Specifies the path to the crt file for SAML.",
+			"type":    "string",
+			"default": "",
+		},
+		"saml-key": {
+			"desc":    "Specifies the path to the key file for SAML.",
+			"type":    "string",
+			"default": "",
+		},
 	}
 
 	// Config from env if exists
@@ -218,6 +250,11 @@ func Load() bool {
 	TokenURL = getMostlyPrioriesConfigKey(definition["token-url"]).(string)
 	UserinfoURL = getMostlyPrioriesConfigKey(definition["userinfo-url"]).(string)
 	StateLifetime = getMostlyPrioriesConfigKey(definition["state-lifetime"]).(int)
+
+	IdpMetadataURL = getMostlyPrioriesConfigKey(definition["saml-metadata-url"]).(string)
+	SelfRootURL = getMostlyPrioriesConfigKey(definition["self-root-url"]).(string)
+	SAMLCrt = getMostlyPrioriesConfigKey(definition["saml-crt"]).(string)
+	SAMLKey = getMostlyPrioriesConfigKey(definition["saml-key"]).(string)
 
 	// Set http flag
 	IsHTTPS = (ServerKey != "" && ServerCrt != "")

@@ -1,4 +1,4 @@
-server.crt
-server.key
-config-local.yml
+*.crt
+*.key
+config-local.yaml
 run-local*.sh

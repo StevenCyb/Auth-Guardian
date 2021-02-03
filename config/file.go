@@ -11,12 +11,12 @@ import (
 // getConfigFromFile sets the configuration from file
 func getConfigFromFile(definition *map[string]map[string]interface{}) {
 	// Check config file exists
-	if _, err := os.Stat("config.yml"); os.IsNotExist(err) {
+	if _, err := os.Stat("config.yaml"); os.IsNotExist(err) {
 		return
 	}
 
 	// Read config file
-	rawYaml, err := ioutil.ReadFile("config.yml")
+	rawYaml, err := ioutil.ReadFile("config.yaml")
 	if err != nil {
 		log.Panicf("Can't load existing config file %v ", err)
 	}
@@ -25,7 +25,7 @@ func getConfigFromFile(definition *map[string]map[string]interface{}) {
 	parsedYaml := map[string]string{}
 	err = yaml.Unmarshal(rawYaml, parsedYaml)
 	if err != nil {
-		log.Panicf("Unmarshaling of existing config file failed %v ", err)
+		log.Panicf("Unmarshal of existing config file failed %v ", err)
 	}
 
 	// Load config file

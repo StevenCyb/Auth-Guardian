@@ -4,11 +4,12 @@
 2) [Configuration Options](#configuration-options)
 3) [Examples](#examples) \
 3.1) [Keycloak-OIDC](#keycloak-oidc) \
+3.1) [Keycloak-SAML](#keycloak-saml) \
 3.1) [Github](#github)
 
 ### How to configure
 The configuration can be done using environment variables, arguments and a configuration file.
-The configuration file cannot be selected, it is explicitly searched for a `config.yml` in the project folder.
+The configuration file cannot be selected, it is explicitly searched for a `config.yaml` in the project folder.
 
 Two or all three variants can also be used together.
 Please note that the configurations overwrite each other at a fixed order.
@@ -20,23 +21,27 @@ They also show which of these options are mandatory.
 
 | Argument               | Type      | Required | Default  | Description                                                                         |
 |------------------------|-----------|:--------:|----------|-------------------------------------------------------------------------------------|
-| --auth-url             | string    | Yes      | -        | Specifies the URL to redirect an unauthenticated user.                              |
-| --client-id            | string    | Yes      | -        | Specifies the application's ID                                                      |
-| --client-secret        | string    | Yes      | -        | Specifies the application's secret.                                                 |
-| --forward-access-token | bool      | No       | false    | Specifies whether the access token should be forwarded.                             |
+| --auth-url             | string    | No 3*    | -        | Specifies the URL to redirect an unauthenticated user.                              |
+| --client-id            | string    | No 3*    | -        | Specifies the application's ID                                                      |
+| --client-secret        | string    | No 3*    | -        | Specifies the application's secret.                                                 |
+| --forward-access-token | bool      | No 5*    | false    | Specifies whether the access token should be forwarded.                             |
 | --forward-userinfo     | bool      | No       | false    | Specifies whether the userinfo should be forwarded.                                 |
 | --listen               | string    | No       | :8080    | Specifies where to listen to incoming requests.                                     |
 | --log-file             | string    | No       | disabled | Specifies the log file location (default = file logging disabled).                  |
 | --log-json             | bool      | No       | false    | Specifies if logs should have JSON format or formatted text.                        |
 | --log-level            | int       | No       | 2        | Set n for {any Panic, n >= 1 Errors, n >= 2 Warnings, n >= 3 Infos, n >= 4 Debugs}. |
 | --redirect-url         | string    | *1       | -        | Specifies which redirect should be used.                                            |
+| --saml-crt             | string    | No 4*    | -        | Specifies the path to the crt file for SAML.                                        |
+| --saml-key             | string    | No 4*    | -        | Specifies the path to the key file for SAML.                                        |
+| --saml-metadata-url    | string    | No 4*    | -        | Specifies the URL to the IDP metadata.                                              |
 | --scopes               | string 2* | No       | -        | Specifies optional requested permissions.                                           |
-| --server-crt           | string    | No       | -        | Specifies the path to the crt file.                                                 |
-| --server-key           | string    | No       | -        | Specifies the path to the key file.                                                 |
+| --self-root-url        | string    | No 4*    | -        | Specifies the root URL to self.                                                     |
+| --server-crt           | string    | No       | -        | Specifies the path to the crt file for SAML.                                        |
+| --server-key           | string    | No       | -        | Specifies the path to the key file for SAML.                                        |
 | --session-lifetime     | int       | No       | 5        | Specifies the lifetime of a session (minutes).                                      |
 | --state-lifetime       | int       | No       | 5        | Specifies how long a state is valid (minutes)                                       |
 | --test-mode            | bool      | No       | false    | TestMode specifies if is running in test mode.                                      |
-| --token-url            | string    | Yes      | -        | Specifies the URL from which to get an access token.                                |
+| --token-url            | string    | No 3*    | -        | Specifies the URL from which to get an access token.                                |
 | --upstream             | string    | Yes      | -        | Specifies the upstream behind this proxy.                                           |
 | --upstream-cors        | bool      | No       | false    | Specifies that the upstream not accept CORS and is not on the same domain.          |
 | --userinfo-url         | string    | No       | -        | Specifies the URL from which to get userinfos.                                      |
@@ -44,6 +49,9 @@ They also show which of these options are mandatory.
 
 * 1* : Required when identity and access management has multiple redirect URls
 * 2* : String in array notation e.g. 1,2,3,4,5 or a,b,c,d,e,f
+* 3* : Yes if you want to use OAuth
+* 4* : Yes if you want to use SAML
+* 5* : Works only with OAuth
 
 ### Examples
 #### Keycloak-OIDC
@@ -74,6 +82,29 @@ go run main.go \
 --token-url=http://{keycloak-url}/auth/realms/{realm-name}/protocol/openid-connect/token \
 --userinfo=http://{keycloak-url}/auth/realms/{realm-name}/protocol/openid-connect/userinfo \
 --scopes=email,roles
+```
+#### Keycloak-SAML
+##### Using environment variables
+```
+export saml-crt={path-to-saml-crt-file}
+export saml-key={path-to-saml-key-file}
+export saml-metadata-url="http://{keycloak-url}/auth/realms/master/protocol/saml/descriptor"
+export self-root-url={self-root-url}
+```
+##### Using configuration file:
+```yml
+saml-crt: {path-to-saml-crt-file}
+saml-key: {path-to-saml-key-file}
+saml-metadata-url: "http://{keycloak-url}/auth/realms/master/protocol/saml/descriptor"
+self-root-url: {self-root-url}
+```
+##### Using arguments
+```shell
+go run main.go \
+--saml-crt={path-to-saml-crt-file} \
+--saml-key={path-to-saml-key-file} \
+--saml-metadata-url="http://{keycloak-url}/auth/realms/master/protocol/saml/descriptor" \
+--self-root-url={self-root-url}
 ```
 #### Github
 ##### Using environment variables

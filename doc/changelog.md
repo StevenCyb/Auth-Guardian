@@ -1,6 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2021-02-03 
+### Added
+- Configuration option for SAML
+- Middleware for SAML authentication
+### Changes
+- Use filename `.yaml` instead of `.yml`
+- Remove old todo
+- Upstream selection is now provided by provider
+- Auth middleware usage is now generic 
+- Add simple config validation for OAuth and SAML to detect targeted authentication mechanism
+- `changelog.md` is now written as `CHANGELOG.md`
+
 ## [0.1.1] - 2021-02-01
 ### Added
 - Options to forward userinfo and/or access-token

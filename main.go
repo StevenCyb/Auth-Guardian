@@ -29,26 +29,16 @@ func main() {
 	}
 
 	// Initialize the OAuth middleware
-	authmiddleware.InitOAuthMiddleware()
+	authInit, authMiddleware := authmiddleware.Provide()
+	authInit()
 
 	// Initialize upstream
-	if !config.CORSUpstream {
-		// Initialize default reverse proxy
-		logging.Debug(&map[string]string{"file": "main.go", "Function": "main", "event": "Use default ReverseProxy"})
-		upstream.InitDefaultReverseProxy()
-
-		// Set request handler
-		logging.Debug(&map[string]string{"file": "main.go", "Function": "main", "event": "Set default reverse proxy handler"})
-		http.Handle("/", authmiddleware.OAuthMiddleware(upstream.ProxyHandler()))
-	} else {
-		// Initialize CORS reverse proxy
-		logging.Debug(&map[string]string{"file": "main.go", "Function": "main", "event": "Use CORS ReverseProxy"})
-		upstream.InitCORSReverseProxy()
-
-		// Set request handler
-		logging.Debug(&map[string]string{"file": "main.go", "Function": "main", "event": "Set CORS reverse proxy handler"})
-		http.Handle("/", authmiddleware.OAuthMiddleware(upstream.CORSProxyHandler()))
-	}
+	logging.Debug(&map[string]string{"file": "main.go", "Function": "main", "event": "Initialize reverse proxy"})
+	upstreamInit, upstreamProxy := upstream.Provide()
+	// Initialize reverse proxy
+	upstreamInit()
+	// Set request handler
+	http.Handle("/", authMiddleware(upstreamProxy()))
 
 	// Run server
 	logging.Info(&map[string]string{"event": fmt.Sprintf("Listening on %s...", config.Listen)})
