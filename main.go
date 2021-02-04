@@ -15,7 +15,7 @@ func main() {
 	// Load config
 	version := config.Load()
 	if version {
-		fmt.Println("Version: 0.1.1")
+		fmt.Println("Version: 0.2.0")
 		return
 	}
 
