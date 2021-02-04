@@ -8,11 +8,23 @@ The documentation is located [here](doc/doc.md), changelog [here](doc/CHANGELOG.
 ![Overview](doc/media/overview.jpg)
 
 ## Roadmap
-### 0.3.0
-Add LDAP support (nee to rename project in this case since SAML != oauth)
-### Release Alpha-0.3.0
 ### 0.4.0
-Add rule middleware (strategy needs to be planed first) | oauthmiddleware -> rulemiddleware -> upstream
+Add rule middleware (strategy needs to be planed first)
+```
+            Entry
+              |
+              V
+      WhitelistMiddleware
+      |               |
+      V               V
+  Upstream    OAuthMiddleware
+                      |
+                      V
+                RuleMiddleware
+                      |
+                      V
+                  Upstream
+```
 ```yaml
 rules:
   - allow: bool (def false)

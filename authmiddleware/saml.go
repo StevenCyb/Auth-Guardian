@@ -23,6 +23,8 @@ var samlSP *samlsp.Middleware
 
 // InitSAMLhMiddleware initialize the SAML middleware
 func InitSAMLhMiddleware() {
+	logging.Debug(&map[string]string{"file": "oauth.go", "Function": "InitSAMLhMiddleware", "event": "Initialize SAML middleware"})
+
 	// Load key and certificate of this SP
 	keyPair, err := tls.LoadX509KeyPair(config.SAMLCrt, config.SAMLKey)
 	if err != nil {

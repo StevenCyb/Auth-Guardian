@@ -84,6 +84,24 @@ var SAMLCrt string
 // SAMLKey specifies the path to the key file for SAML
 var SAMLKey string
 
+// DirectoryServerBaseDN specifies the base DN that should be used for the search
+var DirectoryServerBaseDN string
+
+// DirectoryServerBindDN specifies the DN to use to bind to the directory server when performing simple authentication
+var DirectoryServerBindDN string
+
+// DirectoryServerPort specifies the port of the directory server
+var DirectoryServerPort int
+
+// DirectoryServerHost specifies the host of the directory server
+var DirectoryServerHost string
+
+// DirectoryServerBindPassword specifies password to use to access the key store contents
+var DirectoryServerBindPassword string
+
+// DirectoryServerFilter specifies filter for the user object
+var DirectoryServerFilter string
+
 // Load loads the config
 func Load() bool {
 	definition := map[string]map[string]interface{}{
@@ -212,6 +230,36 @@ func Load() bool {
 			"type":    "string",
 			"default": "",
 		},
+		"ds-base-dn": {
+			"desc":    "Specifies the base DN that should be used for the search.",
+			"type":    "string",
+			"default": "",
+		},
+		"ds-bind-dn": {
+			"desc":    "Specifies the DN to use to bind to the directory server when performing simple authentication.",
+			"type":    "string",
+			"default": "",
+		},
+		"ds-port": {
+			"desc":    "Specifies the port of the directory server.",
+			"type":    "int",
+			"default": 389,
+		},
+		"ds-host": {
+			"desc":    "Specifies the host of the directory server.",
+			"type":    "string",
+			"default": "",
+		},
+		"ds-bind-password": {
+			"desc":    "Specifies password to use to access the key store contents.",
+			"type":    "string",
+			"default": "",
+		},
+		"ds-filter": {
+			"desc":    "Specifies filter for the user object.",
+			"type":    "string",
+			"default": "",
+		},
 	}
 
 	// Config from env if exists
@@ -255,6 +303,13 @@ func Load() bool {
 	SelfRootURL = getMostlyPrioriesConfigKey(definition["self-root-url"]).(string)
 	SAMLCrt = getMostlyPrioriesConfigKey(definition["saml-crt"]).(string)
 	SAMLKey = getMostlyPrioriesConfigKey(definition["saml-key"]).(string)
+
+	DirectoryServerBaseDN = getMostlyPrioriesConfigKey(definition["ds-base-dn"]).(string)
+	DirectoryServerBindDN = getMostlyPrioriesConfigKey(definition["ds-bind-dn"]).(string)
+	DirectoryServerPort = getMostlyPrioriesConfigKey(definition["ds-port"]).(int)
+	DirectoryServerHost = getMostlyPrioriesConfigKey(definition["ds-host"]).(string)
+	DirectoryServerBindPassword = getMostlyPrioriesConfigKey(definition["ds-bind-password"]).(string)
+	DirectoryServerFilter = getMostlyPrioriesConfigKey(definition["ds-filter"]).(string)
 
 	// Set http flag
 	IsHTTPS = (ServerKey != "" && ServerCrt != "")

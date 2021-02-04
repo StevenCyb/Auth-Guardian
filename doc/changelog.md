@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2021-02-04
+### Added
+- Generic LDAP authentication
+### Changes
+- Add debug log
+
 ## [0.2.0] - 2021-02-03 
 ### Added
 - Configuration option for SAML
