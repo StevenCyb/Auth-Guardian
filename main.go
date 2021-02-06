@@ -4,6 +4,7 @@ import (
 	"auth-guardian/authmiddleware"
 	"auth-guardian/config"
 	"auth-guardian/logging"
+	"auth-guardian/rules"
 	"auth-guardian/testservice"
 	"auth-guardian/upstream"
 	"fmt"
@@ -13,9 +14,16 @@ import (
 
 func main() {
 	// Load config
-	version := config.Load()
+	version, err := config.Load()
+	if err != nil {
+		log.Panic(&map[string]string{
+			"file":     "file.go",
+			"Function": "getConfigFromFile",
+			"error":    "Can't load existing config file",
+		})
+	}
 	if version {
-		fmt.Println("Version: 0.3.0")
+		fmt.Println("Version: 0.4.0")
 		return
 	}
 
@@ -28,6 +36,9 @@ func main() {
 		go testservice.Run()
 	}
 
+	// Initialize rules middleware
+	rules.InitializeWhitelistMiddleware()
+
 	// Initialize the OAuth middleware
 	authInit, authMiddleware := authmiddleware.Provide()
 	authInit()
@@ -38,7 +49,11 @@ func main() {
 	// Initialize reverse proxy
 	upstreamInit()
 	// Set request handler
-	http.Handle("/", authMiddleware(upstreamProxy()))
+	http.Handle("/",
+		rules.WhitelistRuleMiddleware(
+			authMiddleware(rules.AuthorizationRuleMiddleware(upstreamProxy())),
+			upstreamProxy(),
+		))
 
 	// Run server
 	logging.Info(&map[string]string{"event": fmt.Sprintf("Listening on %s...", config.Listen)})

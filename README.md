@@ -8,23 +8,8 @@ The documentation is located [here](doc/doc.md), changelog [here](doc/CHANGELOG.
 ![Overview](doc/media/overview.jpg)
 
 ## Roadmap
-### 0.4.0
+### 0.4.1
 Add rule middleware (strategy needs to be planed first)
-```
-            Entry
-              |
-              V
-      WhitelistMiddleware
-      |               |
-      V               V
-  Upstream    OAuthMiddleware
-                      |
-                      V
-                RuleMiddleware
-                      |
-                      V
-                  Upstream
-```
 ```yaml
 rules:
   - allow: bool (def false)
@@ -34,7 +19,7 @@ rules:
     query_parameter: {key: value}
     json_body_parameter: {key: value}
 ```
-### Release Alpha-0.4.0
+### Release Alpha-0.4.1
 ### 0.4.1
 - Create docker image
 - Create helm chart

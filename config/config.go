@@ -1,9 +1,5 @@
 package config
 
-import (
-	"strings"
-)
-
 // TestMode specifies if is running in test mode
 var TestMode bool
 
@@ -102,8 +98,11 @@ var DirectoryServerBindPassword string
 // DirectoryServerFilter specifies filter for the user object
 var DirectoryServerFilter string
 
+// WhitelistRules specifies rules to whitelist resources
+var WhitelistRules []string
+
 // Load loads the config
-func Load() bool {
+func Load() (bool, error) {
 	definition := map[string]map[string]interface{}{
 		"version": {
 			"desc":    "Get the version.",
@@ -182,8 +181,8 @@ func Load() bool {
 		},
 		"scopes": {
 			"desc":    "Specifies optional requested permissions.",
-			"type":    "string",
-			"default": "",
+			"type":    "string_array",
+			"default": &StringArrayFlag{},
 		},
 		"redirect-url": {
 			"desc":    "Specifies which redirect should be used.",
@@ -260,13 +259,21 @@ func Load() bool {
 			"type":    "string",
 			"default": "",
 		},
+		"whitelist-rule": {
+			"desc":    "Specifies rules to whitelist resources.",
+			"type":    "string_array",
+			"default": &StringArrayFlag{},
+		},
 	}
 
 	// Config from env if exists
 	getConfigFromEnv(&definition)
 
 	// Get config from file if defined
-	getConfigFromFile(&definition)
+	err := getConfigFromFile(&definition)
+	if err != nil {
+		return false, err
+	}
 
 	// Get config from arguments
 	getConfigFromArguments(&definition)
@@ -292,7 +299,7 @@ func Load() bool {
 
 	ClientID = getMostlyPrioriesConfigKey(definition["client-id"]).(string)
 	ClientSecret = getMostlyPrioriesConfigKey(definition["client-secret"]).(string)
-	Scopes = strings.Split(getMostlyPrioriesConfigKey(definition["scopes"]).(string), ",")
+	Scopes = getMostlyPrioriesConfigKey(definition["scopes"]).([]string)
 	RedirectURL = getMostlyPrioriesConfigKey(definition["redirect-url"]).(string)
 	AuthURL = getMostlyPrioriesConfigKey(definition["auth-url"]).(string)
 	TokenURL = getMostlyPrioriesConfigKey(definition["token-url"]).(string)
@@ -311,8 +318,10 @@ func Load() bool {
 	DirectoryServerBindPassword = getMostlyPrioriesConfigKey(definition["ds-bind-password"]).(string)
 	DirectoryServerFilter = getMostlyPrioriesConfigKey(definition["ds-filter"]).(string)
 
+	WhitelistRules = getMostlyPrioriesConfigKey(definition["whitelist-rule"]).([]string)
+
 	// Set http flag
 	IsHTTPS = (ServerKey != "" && ServerCrt != "")
 
-	return getMostlyPrioriesConfigKey(definition["version"]).(bool)
+	return getMostlyPrioriesConfigKey(definition["version"]).(bool), nil
 }

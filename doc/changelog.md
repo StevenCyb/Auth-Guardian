@@ -1,6 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2021-02-06
+### Added
+- New routs for test service (/style.css, /script.js, /favicon.ico, /(HTML))
+- Whitelist rule middleware
+- Authorization rule middleware (dummy)
+### Change
+- Fix error logging for file config loading
+- Config now support string arrays
+- Test service route / moved to /mirror
+- Change code examples type in doc
+- Change overview graphic
+
 ## [0.3.0] - 2021-02-04
 ### Added
 - Generic LDAP authentication

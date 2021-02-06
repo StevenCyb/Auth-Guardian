@@ -2,30 +2,29 @@ package config
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 
 	"gopkg.in/yaml.v2"
 )
 
 // getConfigFromFile sets the configuration from file
-func getConfigFromFile(definition *map[string]map[string]interface{}) {
+func getConfigFromFile(definition *map[string]map[string]interface{}) error {
 	// Check config file exists
 	if _, err := os.Stat("config.yaml"); os.IsNotExist(err) {
-		return
+		return err
 	}
 
 	// Read config file
 	rawYaml, err := ioutil.ReadFile("config.yaml")
 	if err != nil {
-		log.Panicf("Can't load existing config file %v ", err)
+		return err
 	}
 
 	// Parse config definition
-	parsedYaml := map[string]string{}
-	err = yaml.Unmarshal(rawYaml, parsedYaml)
+	var parsedYaml map[string]interface{}
+	err = yaml.Unmarshal(rawYaml, &parsedYaml)
 	if err != nil {
-		log.Panicf("Unmarshal of existing config file failed %v ", err)
+		return err
 	}
 
 	// Load config file
@@ -34,4 +33,6 @@ func getConfigFromFile(definition *map[string]map[string]interface{}) {
 			(*definition)[key]["file"] = value
 		}
 	}
+
+	return nil
 }

@@ -10,10 +10,18 @@ func getConfigFromArguments(definition *map[string]map[string]interface{}) {
 		switch (*definition)[key]["type"] {
 		case "int":
 			(*definition)[key]["arg"] = flag.Int(key, (*definition)[key]["default"].(int), (*definition)[key]["desc"].(string))
+			break
 		case "bool":
 			(*definition)[key]["arg"] = flag.Bool(key, (*definition)[key]["default"].(bool), (*definition)[key]["desc"].(string))
+			break
 		case "string":
 			(*definition)[key]["arg"] = flag.String(key, (*definition)[key]["default"].(string), (*definition)[key]["desc"].(string))
+			break
+		case "string_array":
+			var tmp StringArrayFlag
+			(*definition)[key]["arg"] = &tmp
+			flag.Var(&tmp, key, (*definition)[key]["desc"].(string))
+			break
 		}
 	}
 

@@ -11,7 +11,7 @@
 # session-lifetime: 5
 # client-id: ""
 # client-secret: ""
-# scopes: ""
+# scopes: []
 # redirect-url: ""
 # auth-url: ""
 # token-url: ""
@@ -19,3 +19,4 @@
 # state-lifetime: 5
 # saml-metadata-url: ""
 # self-root-url: ""
+# whitelist-rule: []
