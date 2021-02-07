@@ -20,3 +20,6 @@
 # saml-metadata-url: ""
 # self-root-url: ""
 # whitelist-rule: []
+# whitelist-rule:
+# - method: []
+#   path: ""

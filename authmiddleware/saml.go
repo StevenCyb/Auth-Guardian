@@ -10,7 +10,6 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -28,7 +27,6 @@ func InitSAMLhMiddleware() {
 	// Load key and certificate of this SP
 	keyPair, err := tls.LoadX509KeyPair(config.SAMLCrt, config.SAMLKey)
 	if err != nil {
-		fmt.Println(err)
 		logging.Fatal(&map[string]string{"file": "authmiddleware/saml.go", "Function": "InitSAMLhMiddleware", "error": "Loading of certificate failed"})
 	}
 	keyPair.Leaf, err = x509.ParseCertificate(keyPair.Certificate[0])

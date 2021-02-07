@@ -8,18 +8,30 @@ The documentation is located [here](doc/doc.md), changelog [here](doc/CHANGELOG.
 ![Overview](doc/media/overview.jpg)
 
 ## Roadmap
-### 0.4.1
-Add rule middleware (strategy needs to be planed first)
+### 0.4.2
+Add rule middleware with allow rules:
 ```yaml
-rules:
-  - allow: bool (def false)
-    path: string (def "/*")
-    roles: [string]
-    method: string (def "*")
-    query_parameter: {key: value}
-    json_body_parameter: {key: value}
+allow-rule:
+  # For ...
+  # Condition
+  roles: []string
+  userinfo: []string
+  query_parameter: {key: regex}
+  json_body_parameter: {key: regex}
 ```
-### Release Alpha-0.4.1
+Example https://github.com/louketo/louketo-proxy/blob/master/docs/user-guide.md
+### 0.4.3
+Add rule middleware with not allow only rules:
+```yaml
+disallow-rule:
+  # For ...
+  # Condition
+  roles: []string
+  userinfo: []string
+  query_parameter: {key: regex}
+  json_body_parameter: {key: regex}
+```
+### Release Alpha-0.4.3
 ### 0.4.1
 - Create docker image
 - Create helm chart

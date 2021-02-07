@@ -99,7 +99,7 @@ var DirectoryServerBindPassword string
 var DirectoryServerFilter string
 
 // WhitelistRules specifies rules to whitelist resources
-var WhitelistRules []string
+var WhitelistRules []RuleConfig
 
 // Load loads the config
 func Load() (bool, error) {
@@ -261,7 +261,7 @@ func Load() (bool, error) {
 		},
 		"whitelist-rule": {
 			"desc":    "Specifies rules to whitelist resources.",
-			"type":    "string_array",
+			"type":    "rule_array",
 			"default": &StringArrayFlag{},
 		},
 	}
@@ -318,7 +318,7 @@ func Load() (bool, error) {
 	DirectoryServerBindPassword = getMostlyPrioriesConfigKey(definition["ds-bind-password"]).(string)
 	DirectoryServerFilter = getMostlyPrioriesConfigKey(definition["ds-filter"]).(string)
 
-	WhitelistRules = getMostlyPrioriesConfigKey(definition["whitelist-rule"]).([]string)
+	WhitelistRules = getMostlyPrioriesConfigKey(definition["whitelist-rule"]).([]RuleConfig)
 
 	// Set http flag
 	IsHTTPS = (ServerKey != "" && ServerCrt != "")

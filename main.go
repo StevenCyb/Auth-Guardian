@@ -20,10 +20,11 @@ func main() {
 			"file":     "file.go",
 			"Function": "getConfigFromFile",
 			"error":    "Can't load existing config file",
+			"details":  err.Error(),
 		})
 	}
 	if version {
-		fmt.Println("Version: 0.4.0")
+		fmt.Println("Version: 0.4.1")
 		return
 	}
 

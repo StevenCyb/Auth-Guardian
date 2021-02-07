@@ -71,3 +71,13 @@ func GetIPAdress(r *http.Request) (string, error) {
 	}
 	return "", errors.New("No valid ip found")
 }
+
+// StringSliceContains check if s in slice
+func StringSliceContains(slice []string, s string) bool {
+	for _, item := range slice {
+		if item == s {
+			return true
+		}
+	}
+	return false
+}

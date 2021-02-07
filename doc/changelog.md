@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2021-02-07
+### Change
+- Config now support formatted rules 
+- Update whitelist rule definition to use rules (more cumbersome but uniform)
+- Some small improvements
+
 ## [0.4.0] - 2021-02-06
 ### Added
 - New routs for test service (/style.css, /script.js, /favicon.ico, /(HTML))

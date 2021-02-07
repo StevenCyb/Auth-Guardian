@@ -7,9 +7,14 @@
 3.2) [Keycloak-SAML](#keycloak-saml) \
 3.3) [Github-OAuth](#github-oauth) \
 3.4) [ForumSys-LDAP](#forumsys-ldap)
-4) [Rules](#rules)
+4) [Rules](#rules) \
+4.1) [How to define rules](#how-to-define-rules) \
+4.1.1) [Via environment](#via-environment) \
+4.1.2) [Via configuration file](#via-configuration-file) \
+4.1.3) [Via arguments](#via-arguments) \
+4.2) [Whitelist rules](#whitelist-rules)
 
-### How to configure
+## How to configure
 The configuration can be done using environment variables, arguments and a configuration file.
 The configuration file cannot be selected, it is explicitly searched for a `config.yaml` in the project folder.
 
@@ -17,7 +22,7 @@ Two or all three variants can also be used together.
 Please note that the configurations overwrite each other at a fixed order.
 This means that the configurations from the environment variables are overwritten by the configuration file, which in turn is overwritten by the arguments. 
 
-### Configuration Options
+## Configuration Options
 The following table shows and describes the options currently available. 
 They also show which of these options are mandatory.
 
@@ -61,11 +66,11 @@ They also show which of these options are mandatory.
 * 3* : Yes if you want to use SAML
 * 4* : Works only with OAuth
 * 5* : Yes if you want to use LDAP
-* 6* : Each string must be formatted as described on [whitelist rules](#whitelist-rules)
+* 6* : Each string must be formatted as described on [whitelist rules](#rules)
 
-### Examples
-#### Keycloak-OIDC
-##### Using environment variables
+## Examples
+### Keycloak-OIDC
+#### Using environment variables
 ```bash
 export client-id={client-id}
 export client-secret={client-secret}
@@ -74,7 +79,7 @@ export token-url=http://{keycloak-url}/auth/realms/{realm-name}/protocol/openid-
 export userinfo-url=http://{keycloak-url}/auth/realms/{realm-name}/protocol/openid-connect/userinfo
 export scopes=email,roles
 ```
-##### Using configuration file:
+#### Using configuration file:
 ```yml
 client-id: {client-id}
 client-secret: {client-secret}
@@ -83,7 +88,7 @@ token-url: "http://{keycloak-url}/auth/realms/{realm-name}/protocol/openid-conne
 userinfo-url: "http://{keycloak-url}/auth/realms/{realm-name}/protocol/openid-connect/userinfo"
 scopes: "email,roles"
 ```
-##### Using arguments
+#### Using arguments
 ```bash
 go run main.go \
 --client-id={client-id} \
@@ -93,22 +98,22 @@ go run main.go \
 --userinfo=http://{keycloak-url}/auth/realms/{realm-name}/protocol/openid-connect/userinfo \
 --scopes=email,roles
 ```
-#### Keycloak-SAML
-##### Using environment variables
+### Keycloak-SAML
+#### Using environment variables
 ```bash
 export saml-crt={path-to-saml-crt-file}
 export saml-key={path-to-saml-key-file}
 export saml-metadata-url="http://{keycloak-url}/auth/realms/master/protocol/saml/descriptor"
 export self-root-url={self-root-url}
 ```
-##### Using configuration file:
+#### Using configuration file:
 ```yml
 saml-crt: {path-to-saml-crt-file}
 saml-key: {path-to-saml-key-file}
 saml-metadata-url: "http://{keycloak-url}/auth/realms/master/protocol/saml/descriptor"
 self-root-url: {self-root-url}
 ```
-##### Using arguments
+#### Using arguments
 ```bash
 go run main.go \
 --saml-crt={path-to-saml-crt-file} \
@@ -116,8 +121,8 @@ go run main.go \
 --saml-metadata-url="http://{keycloak-url}/auth/realms/master/protocol/saml/descriptor" \
 --self-root-url={self-root-url}
 ```
-#### Github-OAuth
-##### Using environment variables
+### Github-OAuth
+#### Using environment variables
 ```bash
 export client-id={client-id}
 export client-secret={client-secret}
@@ -126,7 +131,7 @@ export token-url=https://github.com/login/oauth/access_token
 export userinfo-url=https://api.github.com/user
 export scopes=read:user,user:email
 ```
-##### Using configuration file:
+#### Using configuration file:
 ```yml
 client-id: {client-id}
 client-secret: {client-secret}
@@ -135,7 +140,7 @@ token-url: "https://github.com/login/oauth/access_token"
 userinfo-url: "https://api.github.com/user"
 scopes: "read:user,user:email"
 ```
-##### Using arguments
+#### Using arguments
 ```bash
 go run main.go \
 --client-id={client-id} \
@@ -145,8 +150,8 @@ go run main.go \
 --userinfo=https://api.github.com/user \
 --scopes=read:user,user:email
 ```
-#### ForumSys-LDAP
-##### Using environment variables
+### ForumSys-LDAP
+#### Using environment variables
 ```bash
 export ds-base-dn="dc=example,dc=com"
 export ds-bind-dn="cn=read-only-admin,dc=example,dc=com"
@@ -155,7 +160,7 @@ export ds-host="ldap.forumsys.com"
 export ds-bind-password="password"
 export ds-filter="(uid=%s)"
 ```
-##### Using configuration file:
+#### Using configuration file:
 ```yml
 ds-base-dn: "dc=example,dc=com"
 ds-bind-dn: "cn=read-only-admin,dc=example,dc=com"
@@ -164,7 +169,7 @@ ds-host: "ldap.forumsys.com"
 ds-bind-password: "password"
 ds-filter: "(uid=%s)"
 ```
-##### Using arguments
+#### Using arguments
 ```bash
 go run main.go \
 --ds-base-dn="dc=example,dc=com" \
@@ -175,31 +180,72 @@ go run main.go \
 --ds-filter="(uid=%s)"
 ```
 
-### Rules
-#### Whitelist Rules
-The rules for whitelisting are defined as regex.
-Since its an array, it's possible to define multiple rules via `whitelist-rule`.
-Each regex is used to test requests in the formation `METHOD PATH` e.g. `GET /metrics`.
-So for you could write `^(GET) \/metrics$`.
+## Rules
+Rules are defined as JSON (if using environment or arguments) or YAML (if using config file).
+Currently, rules support the following attributes:
 
-Let's assume you want to whitelist all scripts and styles and the favicon.
-In this case you can define it as follows.
-##### Using environment variables
-**Not recommended since `,` can cause unwanted effects or invalidate the regex.**
+| Key    | Type         |
+|--------|--------------|
+| method | string array |
+| path   | regex string |
+
+There is no need to set a value for key that are not required.
+Just skip unwanted keys and they will be automatically ignored.
+### How to define rules
+#### Via environment
+Rules are defined as JSON **array** on the environment.
+Simply write a JSON array with rules and validate it e.g. on [jsonformatter.curiousconcept](https://jsonformatter.curiousconcept.com/).
 ```bash
-export whitelist-rule="^(GET) .*(.js)$,^(GET) .*(.css)$,^(GET) \/favicon.ico$"
+export whitelist-rule='[{method: [], path: ""}, {method: [], path: ""}]'
 ```
-##### Using configuration file:
+#### Via configuration file
+Rules are defined as YAML in the configuration file.
+**You must escape yaml special characters like "\"!**
+For example a regex escape of `\` you are using `\\`.
+So in YAML you an additional escape (like a chain), so use `\\\`.
 ```yml
 whitelist-rule:
-- "^(GET) .*(.js)$"
-- "^(GET) .*(.css)$"
-- "^(GET) \/favicon.ico$"
+- method: []
+  path: ""
+- method: []
+  path: ""
 ```
-##### Using arguments
+#### Via arguments
+The rule argument command expect a list of strings that contains a JSON rule definition.
 ```bash
 go run main.go \
---whitelist-rule="^(GET) .*(.js)$" \
---whitelist-rule="^(GET) .*(.css)$" \
---whitelist-rule="^(GET) \/favicon.ico$"
+--whitelist-rule='{"method":[], "path": ""}' \
+--whitelist-rule='{"method":[], "path": "$"}'
+```
+### Whitelist rules
+This rules define resources which can be accessed without authentication (public resources).
+Whitelist rules are defined as describe in [How to define rules](#How-to-define-rules) support `method` and `path` keys.
+
+Let's assume you want to whitelist all `scripts`, `styles`, the `favicon` and the root path `/`.
+Just for this example we want to allow `GET`, `POST`, `PUT`, `DELETE` on `favicon`. 
+In this case you can define it as follows.
+#### Using environment variables
+```bash
+export whitelist-rule='[{"path": "^(/)$"},{"path": "^.*(.js)$"},{"path": "^.*(.css)$"},{"method": ["GET","POST","PUT","DELETE"],"path": "^(/favicon.ico)$"}]'
+```
+#### Using configuration file
+```yml
+whitelist-rule:
+- path: "^(/)$"
+- path: "^.*(.js)$"
+- path: "^.*(.css)$"
+- method: 
+  - GET
+  - POST
+  - PUT
+  - DELETE
+  path: "^(/favicon.ico)$"
+```
+#### Using arguments
+```bash
+go run main.go \
+--whitelist-rule='{"path": "^(/)$}' \
+--whitelist-rule='{"path":"(.js)$"}' \
+--whitelist-rule='{"path": "(.css)$"}' \
+--whitelist-rule='{"method": ["GET","POST","PUT","DELETE"], "path": "^(/favicon.ico)$"}'
 ```

@@ -22,6 +22,11 @@ func getConfigFromArguments(definition *map[string]map[string]interface{}) {
 			(*definition)[key]["arg"] = &tmp
 			flag.Var(&tmp, key, (*definition)[key]["desc"].(string))
 			break
+		case "rule_array":
+			var tmp StringArrayFlag
+			(*definition)[key]["arg"] = &tmp
+			flag.Var(&tmp, key, (*definition)[key]["desc"].(string))
+			break
 		}
 	}
 
