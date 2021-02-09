@@ -14,7 +14,7 @@ type RuleConfig struct {
 
 // HasValidType validate if rule has valid type
 func (r *RuleConfig) HasValidType() bool {
-	return r.Type == "whitelist" || r.Type == "required"
+	return r.Type == "whitelist" || r.Type == "required" || r.Type == "disallow"
 }
 
 // FromMap fill the config rule with data from map

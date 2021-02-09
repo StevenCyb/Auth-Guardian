@@ -10,6 +10,7 @@ import (
 )
 
 var requiredRules []Rule
+var disallowRules []Rule
 var ruleUseBody bool
 var ruleUseQuery bool
 
@@ -22,10 +23,16 @@ func InitializeAuthorizationMiddleware() {
 
 	// Initialize required rules
 	for _, rule := range config.Rules {
+		ruleName := ""
+
 		ruleStruct := Rule{}
 		ruleStruct.FromRuleConfig(rule)
 		if rule.Type == "required" {
+			ruleName = "Required"
 			requiredRules = append(requiredRules, ruleStruct)
+		} else if rule.Type == "disallow" {
+			ruleName = "Disallow"
+			disallowRules = append(requiredRules, ruleStruct)
 		}
 
 		if len(rule.JSONBodyParameter) > 0 {
@@ -37,7 +44,7 @@ func InitializeAuthorizationMiddleware() {
 		}
 
 		logging.Info(&map[string]string{
-			"event":                    "Required rule added",
+			"event":                    ruleName + " rule added",
 			"rule_method":              fmt.Sprintf("%v", rule.Method),
 			"rule_path":                rule.Path,
 			"rule_userinfo":            fmt.Sprintf("%v", rule.Userinfo),
@@ -70,7 +77,7 @@ func AuthorizationRuleMiddleware(next http.Handler) http.Handler {
 		bodyFD := &util.FlatData{}
 		queryFD := &util.FlatData{}
 		userinfo := &util.FlatData{}
-		skip := len(requiredRules) == 0
+		skip := len(requiredRules) == 0 && len(disallowRules) == 0
 
 		if !skip {
 			if ruleUseBody {
@@ -110,12 +117,19 @@ func AuthorizationRuleMiddleware(next http.Handler) http.Handler {
 		}
 
 		if !skip {
-			// Check if request match whitelist rule
+			// Check if request match required rule
 			for _, rule := range requiredRules {
 				math, allow := rule.TestRequired(r, userinfo, queryFD, bodyFD)
 
 				if math {
 					if !allow {
+						logging.Debug(&map[string]string{
+							"file":     "authorization.go",
+							"Function": "AuthorizationRuleMiddleware",
+							"event":    "Required rule violated - send forbidden",
+							"rule":     fmt.Sprintf("%+v", rule),
+						})
+
 						http.Error(w, "403 - Forbidden.", 403)
 						return
 					}
@@ -127,19 +141,35 @@ func AuthorizationRuleMiddleware(next http.Handler) http.Handler {
 		}
 
 		if !skip {
-			// Implement disallow rules later here
+			// Check if request match disallow rule
+			for _, rule := range disallowRules {
+				math, allow := rule.TestDisallow(r, userinfo, queryFD, bodyFD)
+
+				if math {
+					if !allow {
+						logging.Debug(&map[string]string{
+							"file":     "authorization.go",
+							"Function": "AuthorizationRuleMiddleware",
+							"event":    "Disallow rule violated - send forbidden",
+							"rule":     fmt.Sprintf("%+v", rule),
+						})
+
+						http.Error(w, "403 - Forbidden.", 403)
+						return
+					}
+
+					skip = true
+					break
+				}
+			}
 		}
 
 		// Serve to upstream
-		serve(next, w, r)
+		logging.Debug(&map[string]string{
+			"file":     "authorization.go",
+			"Function": "AuthorizationRuleMiddleware",
+			"event":    "Serve to upstream",
+		})
+		next.ServeHTTP(w, r)
 	})
-}
-
-func serve(next http.Handler, w http.ResponseWriter, r *http.Request) {
-	logging.Debug(&map[string]string{
-		"file":     "authorization.go",
-		"Function": "AuthorizationRuleMiddleware",
-		"event":    "Serve to upstream",
-	})
-	next.ServeHTTP(w, r)
 }

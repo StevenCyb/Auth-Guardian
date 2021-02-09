@@ -8,13 +8,11 @@ The documentation is located [here](doc/doc.md), changelog [here](doc/CHANGELOG.
 ![Overview](doc/media/overview.jpg)
 
 ## Roadmap
-### 0.4.4
-- add rule middleware with disallow rules
-#### Release Alpha-0.4.4
-### 0.4.1
+### 0.4.5
 - Create docker image
 - Create helm chart
-### Release Alpha-0.4.1
-### 0.5.1
+### Release Alpha-0.4.5
+### 0.4.6
 - Implement tests
+### Release Alpha-0.5.0
 ### Some improvements...

@@ -13,7 +13,8 @@
 4.1.2) [Via configuration file](#via-configuration-file) \
 4.1.3) [Via arguments](#via-arguments) \
 4.2) [Whitelist rules](#whitelist-rules) \
-4.3) [Required rules](#required-rules)
+4.3) [Required rules](#required-rules) \
+4.4) [Disallow rules](#disallow-rules)
 
 ## How to configure
 The configuration can be done using environment variables, arguments and a configuration file.
@@ -194,7 +195,7 @@ Currently, rules support the following attributes:
 | query-parameter     | string map 2* | No       |
 | json-body-parameter | string map 2* | No       |
 
-* 1* : Valid types are `whitelist` or `required`
+* 1* : Valid types are `whitelist`, `required` and `disallow`
 * 2* : "path.to.value.dot.separated": "regex string"
 
 It's required to specifie a valid `taype`.
@@ -286,7 +287,7 @@ This JSON could look like:
     "group": [
       "developer",
       "inetOrgPerson",
-      "cool-guy"
+      "internal"
     ]
   }
 }
@@ -309,4 +310,43 @@ rules:
 ```bash
 go run main.go \
 --rules='{"type": "required", "path": "^(/)$", "userinfo": {"company.group": "^inetOrgPerson$", "email": "(@test-company.com)$"}}'
+```
+### Disallow rules
+This rules define resources that can't be accessed on defined conditions (e.g. if all users are allowed excluding externals).
+Required rules support `userinfo`, `query-parameter` and `json-body-parameter` keys and the resource are defined with `method` and `path`.
+
+For example if we want to allow root `/` access for all users excluding externals which belogs to the group `externals`.
+We first can check how the userinfo is structured by seting the `--test-mode` argument to `true`.
+Now we can navigate to the path `localhost/mirror` and decode the base64 encoded userinfo from the cookie to get the JSON.
+This JSON could look like:
+```json
+{
+  "username": "someone",
+  "email": "someone@external.test-company.com",
+  "company": {
+    "group": [
+      "developer",
+      "inetOrgPerson",
+      "externals"
+    ]
+  }
+}
+``` 
+Then we could define the required role as follows.
+#### Using environment variables
+```bash
+export rules='[{"type": "disallow", "path": "^(/)$", "userinfo": {"company.group": "^externals$"}]'
+```
+#### Using configuration file
+```yml
+rules:
+- type: "disallow"
+  path: "^(/)$"
+  userinfo:
+    company.group: "^externals$"
+```
+#### Using arguments
+```bash
+go run main.go \
+--rules='{"type": "disallow", "path": "^(/)$", "userinfo": {"company.group": "^externals$"}'
 ```

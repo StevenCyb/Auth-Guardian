@@ -1,8 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.4] - 2021-02-09
+### Added
+- Implementation of disallow rules for rule middleware
+### Changed
+- Some small improvements
+
 ## [0.4.3] - 2021-02-09
-### Change
+### Changed
 - Rules are now configured by single argument `rule` and differentiated by `type` key 
 - Update doc regarding rule changes
 ### Bugfix
@@ -17,7 +23,7 @@ All notable changes to this project will be documented in this file.
 - On custom StringArrayFlag type
 
 ## [0.4.1] - 2021-02-07
-### Change
+### Changed
 - Config now support formatted rules 
 - Update whitelist rule definition to use rules (more cumbersome but uniform)
 - Some small improvements
@@ -27,7 +33,7 @@ All notable changes to this project will be documented in this file.
 - New routs for test service (/style.css, /script.js, /favicon.ico, /(HTML))
 - Whitelist rule middleware
 - Authorization rule middleware (dummy)
-### Change
+### Changed
 - Fix error logging for file config loading
 - Config now support string arrays
 - Test service route / moved to /mirror
@@ -37,14 +43,14 @@ All notable changes to this project will be documented in this file.
 ## [0.3.0] - 2021-02-04
 ### Added
 - Generic LDAP authentication
-### Changes
+### Changeds
 - Add debug log
 
 ## [0.2.0] - 2021-02-03 
 ### Added
 - Configuration option for SAML
 - Middleware for SAML authentication
-### Changes
+### Changeds
 - Use filename `.yaml` instead of `.yml`
 - Remove old todo
 - Upstream selection is now provided by provider
@@ -56,7 +62,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Options to forward userinfo and/or access-token
 - Test option to run application in test mode (run a service behind which mirrors request)
-### Changes
+### Changeds
 - Roadmap re-organized 
 - Error printing on oauth.go (did not use logging previously)
 - Add changelog hint to contribution document 

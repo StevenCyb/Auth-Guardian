@@ -149,3 +149,29 @@ func (rule *Rule) TestRequired(r *http.Request, userinfo *util.FlatData, query *
 	}
 	return false, false
 }
+
+// TestDisallow test request again this disallow rule
+func (rule *Rule) TestDisallow(r *http.Request, userinfo *util.FlatData, query *util.FlatData, jsonBody *util.FlatData) (bool, bool) {
+	if rule.TestWhitelist(r) {
+		for _, vv := range rule.Userinfo {
+			if vv.Match(userinfo) {
+				return true, false
+			}
+		}
+
+		for _, vv := range rule.QueryParameter {
+			if vv.Match(query) {
+				return true, false
+			}
+		}
+
+		for _, vv := range rule.JSONBodyParameter {
+			if vv.Match(jsonBody) {
+				return true, false
+			}
+		}
+
+		return true, true
+	}
+	return false, false
+}
