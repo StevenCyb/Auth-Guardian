@@ -19,7 +19,7 @@ func InitializeWhitelistMiddleware() {
 		whitelistRules = append(whitelistRules, ruleStruct)
 
 		logging.Info(&map[string]string{
-			"event":       "Rule added",
+			"event":       "Whitelist rule added",
 			"rule_method": fmt.Sprintf("%v", rule.Method),
 			"rule_path":   rule.Path,
 		})

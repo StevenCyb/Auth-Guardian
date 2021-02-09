@@ -21,6 +21,7 @@ func setForwardInformations(sourceReq *http.Request, targetReq *http.Request) {
 			})
 
 			session := util.SessionMap[sessionID.(string)]
+
 			if config.ForwardUserinfo {
 				userinfo, err := session.Get("userinfo_string")
 				if err == nil {
@@ -33,10 +34,16 @@ func setForwardInformations(sourceReq *http.Request, targetReq *http.Request) {
 					})
 				}
 			}
+
 			if config.ForwardAccessToken {
 				accessToken, err := session.Get("access_token_string")
 				if err == nil {
 					targetReq.AddCookie(&http.Cookie{Name: "access_token", Value: accessToken.(string)})
+
+					claims, err := session.Get("access_token_string")
+					if err == nil {
+						targetReq.AddCookie(&http.Cookie{Name: "claims_string", Value: claims.(string)})
+					}
 				} else {
 					logging.Warning(&map[string]string{
 						"file":     "upstream/utils.go",

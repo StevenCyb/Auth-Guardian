@@ -57,7 +57,7 @@ func LDAPMiddleware(next http.Handler) http.Handler {
 		session := util.SessionStart(w, r)
 
 		// Check if userinfo in session
-		_, userinfoError := session.Get("userinfo")
+		_, userinfoError := session.Get("userinfo_string")
 
 		// Check if user authenticated
 		user, err := authenticator.Authenticate(r)
@@ -80,10 +80,18 @@ func LDAPMiddleware(next http.Handler) http.Handler {
 		if userinfoError != nil {
 			logging.Debug(&map[string]string{"file": "ldap.go", "Function": "LDAPMiddleware", "event": "Set userinfo to new session"})
 
-			session.Set("userinfo", user)
-
+			// Store userinfo as base64 string to forward if configured
 			userinfoString, _ := json.Marshal(user)
 			session.Set("userinfo_string", base64.StdEncoding.EncodeToString(userinfoString))
+
+			userinfoFlatData := util.NewFlatData()
+			userinfoFlatData.BuildFrom(map[string]interface{}{
+				"username":   user.UserName(),
+				"user_id":    user.ID(),
+				"groups":     user.Groups(),
+				"extensions": user.Extensions(),
+			})
+			session.Set("userinfo_fd", userinfoFlatData)
 		}
 
 		// Set session id to context

@@ -17,14 +17,14 @@ func init() {
 // SetCookie create and set a cookie with given name, value and lifetime (min)
 func SetCookie(w http.ResponseWriter, name string, value string, sameSite http.SameSite, minuteLifetime time.Duration) {
 	logging.Debug(&map[string]string{
-		"file":            "cookie.go",
-		"Function":        "SetCookie",
-		"event":           "Create cookie",
-		"name":            name,
-		"value":           value,
-		"same_site":       fmt.Sprint(sameSite),
-		"minute_lifetime": fmt.Sprint(minuteLifetime * time.Minute),
-		"seed":            seed,
+		"file":      "cookie.go",
+		"Function":  "SetCookie",
+		"event":     "Create cookie",
+		"name":      name,
+		"value":     value,
+		"same_site": fmt.Sprint(sameSite),
+		"lifetime":  fmt.Sprint(minuteLifetime * time.Minute),
+		"seed":      seed,
 	})
 	cookie := http.Cookie{
 		Name:     name + seed,

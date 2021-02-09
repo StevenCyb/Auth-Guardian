@@ -101,6 +101,9 @@ var DirectoryServerFilter string
 // WhitelistRules specifies rules to whitelist resources
 var WhitelistRules []RuleConfig
 
+// RequiredRules specifies rules that allow an access only if all conditions matches
+var RequiredRules []RuleConfig
+
 // Load loads the config
 func Load() (bool, error) {
 	definition := map[string]map[string]interface{}{
@@ -264,6 +267,11 @@ func Load() (bool, error) {
 			"type":    "rule_array",
 			"default": &StringArrayFlag{},
 		},
+		"required-rule": {
+			"desc":    "Specifies rules that allow an access only if all conditions matches.",
+			"type":    "rule_array",
+			"default": &StringArrayFlag{},
+		},
 	}
 
 	// Config from env if exists
@@ -319,6 +327,7 @@ func Load() (bool, error) {
 	DirectoryServerFilter = getMostlyPrioriesConfigKey(definition["ds-filter"]).(string)
 
 	WhitelistRules = getMostlyPrioriesConfigKey(definition["whitelist-rule"]).([]RuleConfig)
+	RequiredRules = getMostlyPrioriesConfigKey(definition["required-rule"]).([]RuleConfig)
 
 	// Set http flag
 	IsHTTPS = (ServerKey != "" && ServerCrt != "")

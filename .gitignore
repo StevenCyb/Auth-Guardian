@@ -3,3 +3,4 @@
 config-local.yaml
 run-local*.sh
 keycloak*
+note.md

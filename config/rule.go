@@ -5,6 +5,10 @@ type RuleConfig struct {
 	// Target attribute
 	Method []string `json:"method" yaml:"method"`
 	Path   string   `json:"path" yaml:"path"`
+	// Condition
+	Userinfo          map[string]string `json:"userinfo" yaml:"userinfo"`
+	QueryParameter    map[string]string `json:"query-parameter" yaml:"query-parameter"`
+	JSONBodyParameter map[string]string `json:"json-body-parameter" yaml:"json-body-parameter"`
 }
 
 // FromMap fill the config rule with data from map
@@ -16,6 +20,15 @@ func (r *RuleConfig) FromMap(m map[interface{}]interface{}) {
 			break
 		case "path":
 			r.Path = value.(string)
+			break
+		case "userinfo":
+			r.Userinfo = InterfaceToStringMap(value)
+			break
+		case "query-parameter":
+			r.QueryParameter = InterfaceToStringMap(value)
+			break
+		case "json-body-parameter":
+			r.JSONBodyParameter = InterfaceToStringMap(value)
 			break
 		}
 	}

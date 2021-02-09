@@ -131,11 +131,31 @@ type StringArrayFlag []string
 
 // String return array as string
 func (i *StringArrayFlag) String() string {
-	return ""
+	return strings.Join(*i, " ")
 }
 
 // Set a item to array
 func (i *StringArrayFlag) Set(value string) error {
+	var jData1 map[string]interface{}
+	if err := json.Unmarshal([]byte(value), &jData1); err == nil {
+		*i = append(*i, value)
+		return nil
+	}
+	var jData2 []string
+	if err := json.Unmarshal([]byte(value), &jData2); err == nil {
+		for _, item := range jData1 {
+			stringData, _ := json.Marshal(item)
+			*i = append(*i, string(stringData))
+		}
+		return nil
+	}
+	if strings.Contains(value, ",") {
+		for _, v := range strings.Split(value, ",") {
+			*i = append(*i, v)
+		}
+		return nil
+	}
+
 	*i = append(*i, value)
 	return nil
 }
@@ -147,4 +167,13 @@ func InterfaceToStringSlice(i interface{}) []string {
 		stringSlice = append(stringSlice, v.(string))
 	}
 	return stringSlice
+}
+
+// InterfaceToStringMap convert a interface to string map
+func InterfaceToStringMap(i interface{}) map[string]string {
+	stringMap := map[string]string{}
+	for key, value := range i.(map[interface{}]interface{}) {
+		stringMap[key.(string)] = value.(string)
+	}
+	return stringMap
 }

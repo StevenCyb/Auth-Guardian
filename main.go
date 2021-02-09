@@ -24,7 +24,7 @@ func main() {
 		})
 	}
 	if version {
-		fmt.Println("Version: 0.4.1")
+		fmt.Println("Version: 0.4.2")
 		return
 	}
 
@@ -39,6 +39,9 @@ func main() {
 
 	// Initialize rules middleware
 	rules.InitializeWhitelistMiddleware()
+
+	// Initialize authorization middleware
+	rules.InitializeAuthorizationMiddleware()
 
 	// Initialize the OAuth middleware
 	authInit, authMiddleware := authmiddleware.Provide()

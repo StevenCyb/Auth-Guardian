@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.2] - 2021-02-09
+### Added
+- Required rule configuration
+- Implement of required rules for rule middleware
+- If forwarding token is enabled also send the claims
+### Bugfix
+- On custom StringArrayFlag type
+
 ## [0.4.1] - 2021-02-07
 ### Change
 - Config now support formatted rules 

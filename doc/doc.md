@@ -2,7 +2,7 @@
 ## DOC -- Table Of Contents
 1) [How to configure](#how-to-configure)
 2) [Configuration Options](#configuration-options)
-3) [Examples](#examples) \
+3) [Authentication](#authentication) \
 3.1) [Keycloak-OIDC](#keycloak-oidc) \
 3.2) [Keycloak-SAML](#keycloak-saml) \
 3.3) [Github-OAuth](#github-oauth) \
@@ -12,7 +12,8 @@
 4.1.1) [Via environment](#via-environment) \
 4.1.2) [Via configuration file](#via-configuration-file) \
 4.1.3) [Via arguments](#via-arguments) \
-4.2) [Whitelist rules](#whitelist-rules)
+4.2) [Whitelist rules](#whitelist-rules) \
+4.3) [Required rules](#required-rules)
 
 ## How to configure
 The configuration can be done using environment variables, arguments and a configuration file.
@@ -60,6 +61,7 @@ They also show which of these options are mandatory.
 | --userinfo-url         | string          | No       | -        | Specifies the URL from which to get userinfos.                                                 |
 | --version              | bool            | No       | false    | Get the version.                                                                               |
 | --whitelist-rule       | string array 6* | No       | -        | Specifies rules to whitelist resources.                                                        |
+| --required-rule      | string array 6* | No       | -        | Specifies rules that allow an access only if all conditions matches.                            |
 
 * 1* : Required when identity and access management has multiple redirect URls
 * 2* : Yes if you want to use OAuth
@@ -68,7 +70,7 @@ They also show which of these options are mandatory.
 * 5* : Yes if you want to use LDAP
 * 6* : Each string must be formatted as described on [whitelist rules](#rules)
 
-## Examples
+## Authentication
 ### Keycloak-OIDC
 #### Using environment variables
 ```bash
@@ -184,10 +186,15 @@ go run main.go \
 Rules are defined as JSON (if using environment or arguments) or YAML (if using config file).
 Currently, rules support the following attributes:
 
-| Key    | Type         |
-|--------|--------------|
-| method | string array |
-| path   | regex string |
+| Key                 | Type          | Required |
+|---------------------|---------------|----------|
+| method              | string array  | No       |
+| path                | regex string  | No       |
+| userinfo            | string map 1* | No       |
+| query-parameter     | string map 1* | No       |
+| json-body-parameter | string map 1* | No       |
+
+* 1* : "path.to.value.dot.separated": "regex string"
 
 There is no need to set a value for key that are not required.
 Just skip unwanted keys and they will be automatically ignored.
@@ -196,7 +203,7 @@ Just skip unwanted keys and they will be automatically ignored.
 Rules are defined as JSON **array** on the environment.
 Simply write a JSON array with rules and validate it e.g. on [jsonformatter.curiousconcept](https://jsonformatter.curiousconcept.com/).
 ```bash
-export whitelist-rule='[{method: [], path: ""}, {method: [], path: ""}]'
+export whitelist-rule='[{"method": [], path: "", "userinfo": {}, "query-parameter": {}, "json-body-parameter": {}}, {"method": [], path: "", "userinfo": {}, "query-parameter": {}, "json-body-parameter": {}}]'
 ```
 #### Via configuration file
 Rules are defined as YAML in the configuration file.
@@ -207,19 +214,25 @@ So in YAML you an additional escape (like a chain), so use `\\\`.
 whitelist-rule:
 - method: []
   path: ""
+  userinfo: {}
+  query-parameter: {}
+  query-parameter: {}
 - method: []
   path: ""
+  userinfo: {}
+  query-parameter: {}
+  query-parameter: {}
 ```
 #### Via arguments
 The rule argument command expect a list of strings that contains a JSON rule definition.
 ```bash
 go run main.go \
---whitelist-rule='{"method":[], "path": ""}' \
---whitelist-rule='{"method":[], "path": "$"}'
+--whitelist-rule='{"method":[], "path": "", "userinfo": {}, "query-parameter": {}, "json-body-parameter": {}}' \
+--whitelist-rule='{"method":[], "path": "", "userinfo": {}, "query-parameter": {}, "json-body-parameter": {}}'
 ```
 ### Whitelist rules
 This rules define resources which can be accessed without authentication (public resources).
-Whitelist rules are defined as describe in [How to define rules](#How-to-define-rules) support `method` and `path` keys.
+Whitelist rules are defined as describe in [How to define rules](#How-to-define-rules) and support `method` and `path` keys.
 
 Let's assume you want to whitelist all `scripts`, `styles`, the `favicon` and the root path `/`.
 Just for this example we want to allow `GET`, `POST`, `PUT`, `DELETE` on `favicon`. 
@@ -248,4 +261,43 @@ go run main.go \
 --whitelist-rule='{"path":"(.js)$"}' \
 --whitelist-rule='{"path": "(.css)$"}' \
 --whitelist-rule='{"method": ["GET","POST","PUT","DELETE"], "path": "^(/favicon.ico)$"}'
+```
+### Required rules
+This rules define resources that can be only accessed on defined conditions (e.g. if the user belongs to group or has a specific role).
+Required rules support `userinfo`, `query-parameter` and `json-body-parameter` keys and the resource are defined with `method` and `path`.
+
+For example if we want to allow root `/` access for users which belongs to the group `inetOrgPerson` and have an email address from `@test-company.com`.
+We first can check how the userinfo is structured by seting the `--test-mode` argument to `true`.
+Now we can navigate to the path `localhost/mirror` and decode the base64 encoded userinfo from the cookie to get the JSON.
+This JSON could look like:
+```json
+{
+  "username": "tesla",
+  "email": "tesla@test-company.com",
+  "company": {
+    "group": [
+      "developer",
+      "inetOrgPerson",
+      "cool-guy"
+    ]
+  }
+}
+``` 
+Then we could define the required role as follows.
+#### Using environment variables
+```bash
+export required-rule='[{"path": "^(/)$", "userinfo": {"company.group": "^inetOrgPerson$", "email": "(@test-company.com)$"}}]'
+```
+#### Using configuration file
+```yml
+required-rule:
+- path: "^(/)$"
+  userinfo:
+    company.group: "^inetOrgPerson$"
+    email: "(@test-company.com)$"
+```
+#### Using arguments
+```bash
+go run main.go \
+--required-rule='{"path": "^(/)$", "userinfo": {"company.group": "^inetOrgPerson$", "email": "(@test-company.com)$"}}'
 ```

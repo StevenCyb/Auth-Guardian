@@ -9,6 +9,7 @@ Try to provide the necessary information so that your pull request can be unders
 * [Reporting Bugs](#reporting-bugs)
 * [Suggesting Enhancements](#suggesting-enhancements) 
 * [Code Styleguide](#code-styleguide)
+* [Write Tests](#write-tests)
 * [Update the Documentation and Changelog](#update-the-documentation-and-changelog)
 * [Versioning](#versioning)
 * [Git Commit Messages](#git-commit-message)
@@ -22,9 +23,14 @@ Please check the [roadmap](../README.md#roadmap) before suggesting an enhancemen
 When you are creating an enhancement suggestion, please include as many details as possible and use [this template](templates/feature_request.md).
 
 ### Code Styleguide
-- Comment new functions with the name and a one-line description `// Func-/Struct-/Interface-Name and your description`
+- Comment new functions with the name and a one-line description `// func-/struct-/interface-Name and your description`
 - Try to not use external packages if possible 
 - Add additional comments in the line before and not at the end!
+
+### Write Tests
+Nobody likes to write test but writing tests is important to determine errors which could occur through changes.
+Changes that effect the code and are testable should have tests.
+Even if tests exist, check if some of them needs to be updated to.
 
 ### Update the Documentation and Changelog
 Most changes require an adjustment of the documentation. 

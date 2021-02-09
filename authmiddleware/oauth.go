@@ -30,7 +30,7 @@ func InitOAuthMiddleware() {
 	oauthConfig = &oauth2.Config{
 		ClientID:     config.ClientID,
 		ClientSecret: config.ClientSecret,
-		Scopes:       config.Scopes,
+		Scopes:       config.Scopes[0:len(config.Scopes)],
 		RedirectURL:  config.RedirectURL,
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  config.AuthURL,
@@ -228,6 +228,9 @@ func parseClaims(session *util.Session, token *oauth2.Token) {
 	if err == nil {
 		_ = tokenClaimString.UnsafeClaimsWithoutVerification(&claims)
 		session.Set("claims", claims)
+
+		claimsString, _ := json.Marshal(claims)
+		session.Set("claims_string", base64.StdEncoding.EncodeToString(claimsString))
 	}
 }
 
@@ -280,10 +283,12 @@ func getUserinfo(session *util.Session, token *oauth2.Token) {
 		})
 	}
 
-	session.Set("userinfo", userinfo)
-
 	userinfoString, _ := json.Marshal(userinfo)
 	session.Set("userinfo_string", base64.StdEncoding.EncodeToString(userinfoString))
+
+	userinfoFlatData := util.NewFlatData()
+	userinfoFlatData.BuildFrom(userinfo)
+	session.Set("userinfo_fd", userinfoFlatData)
 }
 
 // Request a new token

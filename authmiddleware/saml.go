@@ -95,10 +95,18 @@ func SAMLMiddleware(next http.Handler) http.Handler {
 			samlSessionWithAttributes, ok := samlSession.(samlsp.SessionWithAttributes)
 			if ok {
 				userinfo := samlSessionWithAttributes.GetAttributes()
-				session.Set("userinfo", userinfo)
 
 				userinfoString, _ := json.Marshal(userinfo)
 				session.Set("userinfo_string", base64.StdEncoding.EncodeToString(userinfoString))
+
+				// Create flatdata out of userinfo
+				userinfoMap := map[string]interface{}{}
+				for key, value := range userinfo {
+					userinfoMap[key] = value
+				}
+				userinfoFlatData := util.NewFlatData()
+				userinfoFlatData.BuildFrom(userinfoMap)
+				session.Set("userinfo_fd", userinfoFlatData)
 			} else {
 				logging.Warning(&map[string]string{"file": "oauth.go", "Function": "OAuthMiddleware", "warning": "Can't get SAML session attributes"})
 			}
