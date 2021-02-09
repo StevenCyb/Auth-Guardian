@@ -60,8 +60,7 @@ They also show which of these options are mandatory.
 | --upstream-cors        | bool            | No       | false    | Specifies that the upstream not accept CORS and is not on the same domain.                     |
 | --userinfo-url         | string          | No       | -        | Specifies the URL from which to get userinfos.                                                 |
 | --version              | bool            | No       | false    | Get the version.                                                                               |
-| --whitelist-rule       | string array 6* | No       | -        | Specifies rules to whitelist resources.                                                        |
-| --required-rule      | string array 6* | No       | -        | Specifies rules that allow an access only if all conditions matches.                            |
+| --rules                | string array 6* | No       | -        | Specifies rules for resources.                                                                 |
 
 * 1* : Required when identity and access management has multiple redirect URls
 * 2* : Yes if you want to use OAuth
@@ -188,22 +187,25 @@ Currently, rules support the following attributes:
 
 | Key                 | Type          | Required |
 |---------------------|---------------|----------|
+| type                | string 1*     | Yes      |
 | method              | string array  | No       |
 | path                | regex string  | No       |
-| userinfo            | string map 1* | No       |
-| query-parameter     | string map 1* | No       |
-| json-body-parameter | string map 1* | No       |
+| userinfo            | string map 2* | No       |
+| query-parameter     | string map 2* | No       |
+| json-body-parameter | string map 2* | No       |
 
-* 1* : "path.to.value.dot.separated": "regex string"
+* 1* : Valid types are `whitelist` or `required`
+* 2* : "path.to.value.dot.separated": "regex string"
 
-There is no need to set a value for key that are not required.
+It's required to specifie a valid `taype`.
+But there is no need to set a value for other keys that are not required.
 Just skip unwanted keys and they will be automatically ignored.
 ### How to define rules
 #### Via environment
 Rules are defined as JSON **array** on the environment.
 Simply write a JSON array with rules and validate it e.g. on [jsonformatter.curiousconcept](https://jsonformatter.curiousconcept.com/).
 ```bash
-export whitelist-rule='[{"method": [], path: "", "userinfo": {}, "query-parameter": {}, "json-body-parameter": {}}, {"method": [], path: "", "userinfo": {}, "query-parameter": {}, "json-body-parameter": {}}]'
+export rules='[{"type": "", "method": [], path: "", "userinfo": {}, "query-parameter": {}, "json-body-parameter": {}}, {"type": "", "method": [], path: "", "userinfo": {}, "query-parameter": {}, "json-body-parameter": {}}]'
 ```
 #### Via configuration file
 Rules are defined as YAML in the configuration file.
@@ -211,13 +213,15 @@ Rules are defined as YAML in the configuration file.
 For example a regex escape of `\` you are using `\\`.
 So in YAML you an additional escape (like a chain), so use `\\\`.
 ```yml
-whitelist-rule:
-- method: []
+rules:
+- type: ""
+  method: []
   path: ""
   userinfo: {}
   query-parameter: {}
   query-parameter: {}
-- method: []
+- type: ""
+  method: []
   path: ""
   userinfo: {}
   query-parameter: {}
@@ -227,8 +231,8 @@ whitelist-rule:
 The rule argument command expect a list of strings that contains a JSON rule definition.
 ```bash
 go run main.go \
---whitelist-rule='{"method":[], "path": "", "userinfo": {}, "query-parameter": {}, "json-body-parameter": {}}' \
---whitelist-rule='{"method":[], "path": "", "userinfo": {}, "query-parameter": {}, "json-body-parameter": {}}'
+--rules='{"type": "", "method":[], "path": "", "userinfo": {}, "query-parameter": {}, "json-body-parameter": {}}' \
+--rules='{"type": "", "method":[], "path": "", "userinfo": {}, "query-parameter": {}, "json-body-parameter": {}}'
 ```
 ### Whitelist rules
 This rules define resources which can be accessed without authentication (public resources).
@@ -239,15 +243,19 @@ Just for this example we want to allow `GET`, `POST`, `PUT`, `DELETE` on `favico
 In this case you can define it as follows.
 #### Using environment variables
 ```bash
-export whitelist-rule='[{"path": "^(/)$"},{"path": "^.*(.js)$"},{"path": "^.*(.css)$"},{"method": ["GET","POST","PUT","DELETE"],"path": "^(/favicon.ico)$"}]'
+export rules='[{"type": "whitelist", "path": "^(/)$"},{"type": "whitelist", "path": "^.*(.js)$"},{"type": "whitelist", "path": "^.*(.css)$"},{"type": "whitelist", "method": ["GET","POST","PUT","DELETE"],"path": "^(/favicon.ico)$"}]'
 ```
 #### Using configuration file
 ```yml
-whitelist-rule:
-- path: "^(/)$"
-- path: "^.*(.js)$"
-- path: "^.*(.css)$"
-- method: 
+rules:
+- type: "whitelist"
+  path: "^(/)$"
+- type: "whitelist"
+  path: "^.*(.js)$"
+- type: "whitelist"
+  path: "^.*(.css)$"
+- type: "whitelist"
+  method: 
   - GET
   - POST
   - PUT
@@ -257,10 +265,10 @@ whitelist-rule:
 #### Using arguments
 ```bash
 go run main.go \
---whitelist-rule='{"path": "^(/)$}' \
---whitelist-rule='{"path":"(.js)$"}' \
---whitelist-rule='{"path": "(.css)$"}' \
---whitelist-rule='{"method": ["GET","POST","PUT","DELETE"], "path": "^(/favicon.ico)$"}'
+--rules='{"type": "whitelist", "path": "^(/)$}' \
+--rules='{"type": "whitelist", "path":"(.js)$"}' \
+--rules='{"type": "whitelist", "path": "(.css)$"}' \
+--rules='{"type": "whitelist", "method": ["GET","POST","PUT","DELETE"], "path": "^(/favicon.ico)$"}'
 ```
 ### Required rules
 This rules define resources that can be only accessed on defined conditions (e.g. if the user belongs to group or has a specific role).
@@ -286,12 +294,13 @@ This JSON could look like:
 Then we could define the required role as follows.
 #### Using environment variables
 ```bash
-export required-rule='[{"path": "^(/)$", "userinfo": {"company.group": "^inetOrgPerson$", "email": "(@test-company.com)$"}}]'
+export rules='[{"type": "required", "path": "^(/)$", "userinfo": {"company.group": "^inetOrgPerson$", "email": "(@test-company.com)$"}}]'
 ```
 #### Using configuration file
 ```yml
-required-rule:
-- path: "^(/)$"
+rules:
+- type: "required"
+  path: "^(/)$"
   userinfo:
     company.group: "^inetOrgPerson$"
     email: "(@test-company.com)$"
@@ -299,5 +308,5 @@ required-rule:
 #### Using arguments
 ```bash
 go run main.go \
---required-rule='{"path": "^(/)$", "userinfo": {"company.group": "^inetOrgPerson$", "email": "(@test-company.com)$"}}'
+--rules='{"type": "required", "path": "^(/)$", "userinfo": {"company.group": "^inetOrgPerson$", "email": "(@test-company.com)$"}}'
 ```

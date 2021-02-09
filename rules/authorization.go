@@ -21,10 +21,12 @@ func InitializeAuthorizationMiddleware() {
 	ruleUseQuery = false
 
 	// Initialize required rules
-	for _, rule := range config.RequiredRules {
+	for _, rule := range config.Rules {
 		ruleStruct := Rule{}
 		ruleStruct.FromRuleConfig(rule)
-		requiredRules = append(requiredRules, ruleStruct)
+		if rule.Type == "required" {
+			requiredRules = append(requiredRules, ruleStruct)
+		}
 
 		if len(rule.JSONBodyParameter) > 0 {
 			ruleUseBody = true

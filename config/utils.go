@@ -39,12 +39,21 @@ func getMostlyPrioriesConfigKey(option map[string]interface{}) interface{} {
 			for _, item := range *(value.(*StringArrayFlag)) {
 				rule := RuleConfig{}
 				err := json.Unmarshal([]byte(item), &rule)
+
 				if err != nil {
 					log.Panic(map[string]string{
 						"log_level": "panic",
 						"error":     "Rule unmarshal failed",
 						"for_rule":  item,
 						"details":   err.Error(),
+					})
+				}
+
+				if !rule.HasValidType() {
+					log.Panic(map[string]string{
+						"log_level":    "panic",
+						"error":        "Rule type invalid",
+						"invalid_type": rule.Type,
 					})
 				}
 				rules = append(rules, rule)
@@ -73,6 +82,14 @@ func getMostlyPrioriesConfigKey(option map[string]interface{}) interface{} {
 				rule := RuleConfig{}
 				rule.FromMap(v.(map[interface{}]interface{}))
 				rules = append(rules, rule)
+
+				if !rule.HasValidType() {
+					log.Panic(map[string]string{
+						"log_level":    "panic",
+						"error":        "Rule type invalid",
+						"invalid_type": rule.Type,
+					})
+				}
 			}
 			return rules
 
@@ -95,6 +112,7 @@ func getMostlyPrioriesConfigKey(option map[string]interface{}) interface{} {
 		} else if option["type"] == "rule_array" {
 			rules := []RuleConfig{}
 			err := json.Unmarshal([]byte(value.(string)), &rules)
+
 			if err != nil {
 				log.Panic(map[string]string{
 					"log_level": "panic",
@@ -102,6 +120,16 @@ func getMostlyPrioriesConfigKey(option map[string]interface{}) interface{} {
 					"for_rule":  value.(string),
 					"details":   err.Error(),
 				})
+			}
+
+			for _, rule := range rules {
+				if !rule.HasValidType() {
+					log.Panic(map[string]string{
+						"log_level":    "panic",
+						"error":        "Rule type invalid",
+						"invalid_type": rule.Type,
+					})
+				}
 			}
 			return rules
 

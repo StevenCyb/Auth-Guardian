@@ -8,8 +8,6 @@ The documentation is located [here](doc/doc.md), changelog [here](doc/CHANGELOG.
 ![Overview](doc/media/overview.jpg)
 
 ## Roadmap
-### 0.4.3
-- Move all rules to single argument and distinguish by type key
 ### 0.4.4
 - add rule middleware with disallow rules
 #### Release Alpha-0.4.4

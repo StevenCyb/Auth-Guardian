@@ -2,6 +2,7 @@ package config
 
 // RuleConfig define a rule config struct
 type RuleConfig struct {
+	Type string `json:"type" yaml:"type"`
 	// Target attribute
 	Method []string `json:"method" yaml:"method"`
 	Path   string   `json:"path" yaml:"path"`
@@ -9,6 +10,11 @@ type RuleConfig struct {
 	Userinfo          map[string]string `json:"userinfo" yaml:"userinfo"`
 	QueryParameter    map[string]string `json:"query-parameter" yaml:"query-parameter"`
 	JSONBodyParameter map[string]string `json:"json-body-parameter" yaml:"json-body-parameter"`
+}
+
+// HasValidType validate if rule has valid type
+func (r *RuleConfig) HasValidType() bool {
+	return r.Type == "whitelist" || r.Type == "required"
 }
 
 // FromMap fill the config rule with data from map

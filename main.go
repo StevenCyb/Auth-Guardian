@@ -24,7 +24,7 @@ func main() {
 		})
 	}
 	if version {
-		fmt.Println("Version: 0.4.2")
+		fmt.Println("Version: 0.4.3")
 		return
 	}
 

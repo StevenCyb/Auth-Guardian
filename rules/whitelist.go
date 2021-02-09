@@ -13,7 +13,10 @@ var whitelistRules []Rule
 func InitializeWhitelistMiddleware() {
 	logging.Debug(&map[string]string{"file": "whitelist.go", "Function": "InitializeWhitelistMiddleware", "event": "Initialize whitelist middleware"})
 
-	for _, rule := range config.WhitelistRules {
+	for _, rule := range config.Rules {
+		if rule.Type != "whitelist" {
+			continue
+		}
 		ruleStruct := Rule{}
 		ruleStruct.FromRuleConfig(rule)
 		whitelistRules = append(whitelistRules, ruleStruct)

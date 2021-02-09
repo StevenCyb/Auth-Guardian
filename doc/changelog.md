@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.3] - 2021-02-09
+### Change
+- Rules are now configured by single argument `rule` and differentiated by `type` key 
+- Update doc regarding rule changes
+### Bugfix
+- If no rules specified, return empty array and not nil to prevent parsing error
+
 ## [0.4.2] - 2021-02-09
 ### Added
 - Required rule configuration
