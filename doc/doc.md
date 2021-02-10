@@ -45,6 +45,8 @@ They also show which of these options are mandatory.
 | --log-file             | string          | No       | disabled | Specifies the log file location (default = file logging disabled).                             |
 | --log-json             | bool            | No       | false    | Specifies if logs should have JSON format or formatted text.                                   |
 | --log-level            | int             | No       | 2        | Set n for {any Panic, n >= 1 Errors, n >= 2 Warnings, n >= 3 Infos, n >= 4 Debugs}.            |
+| --mock-oauth           | bool            | No       | false    | Specifies if should run mocked OAuth IDP.                                                      |
+| --mock-test-service    | bool            | No       | false    | MokeTestService specifies if is running in test mode.                                          |
 | --redirect-url         | string          | *1       | -        | Specifies which redirect should be used.                                                       |
 | --saml-crt             | string          | No 3*    | -        | Specifies the path to the crt file for SAML.                                                   |
 | --saml-key             | string          | No 3*    | -        | Specifies the path to the key file for SAML.                                                   |
@@ -55,12 +57,10 @@ They also show which of these options are mandatory.
 | --server-key           | string          | No       | -        | Specifies the path to the key file for SAML.                                                   |
 | --session-lifetime     | int             | No       | 5        | Specifies the lifetime of a session (minutes).                                                 |
 | --state-lifetime       | int             | No       | 5        | Specifies how long a state is valid (minutes)                                                  |
-| --test-mode            | bool            | No       | false    | TestMode specifies if is running in test mode.                                                 |
 | --token-url            | string          | No 2*    | -        | Specifies the URL from which to get an access token.                                           |
 | --upstream             | string          | Yes      | -        | Specifies the upstream behind this proxy.                                                      |
 | --upstream-cors        | bool            | No       | false    | Specifies that the upstream not accept CORS and is not on the same domain.                     |
 | --userinfo-url         | string          | No       | -        | Specifies the URL from which to get userinfos.                                                 |
-| --version              | bool            | No       | false    | Get the version.                                                                               |
 | --rules                | string array 6* | No       | -        | Specifies rules for resources.                                                                 |
 
 * 1* : Required when identity and access management has multiple redirect URls
@@ -276,7 +276,7 @@ This rules define resources that can be only accessed on defined conditions (e.g
 Required rules support `userinfo`, `query-parameter` and `json-body-parameter` keys and the resource are defined with `method` and `path`.
 
 For example if we want to allow root `/` access for users which belongs to the group `inetOrgPerson` and have an email address from `@test-company.com`.
-We first can check how the userinfo is structured by seting the `--test-mode` argument to `true`.
+We first can check how the userinfo is structured by seting the `--mock-test-service` argument to `true`.
 Now we can navigate to the path `localhost/mirror` and decode the base64 encoded userinfo from the cookie to get the JSON.
 This JSON could look like:
 ```json
@@ -316,7 +316,7 @@ This rules define resources that can't be accessed on defined conditions (e.g. i
 Required rules support `userinfo`, `query-parameter` and `json-body-parameter` keys and the resource are defined with `method` and `path`.
 
 For example if we want to allow root `/` access for all users excluding externals which belogs to the group `externals`.
-We first can check how the userinfo is structured by seting the `--test-mode` argument to `true`.
+We first can check how the userinfo is structured by seting the `--mock-test-service` argument to `true`.
 Now we can navigate to the path `localhost/mirror` and decode the base64 encoded userinfo from the cookie to get the JSON.
 This JSON could look like:
 ```json

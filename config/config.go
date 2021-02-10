@@ -1,7 +1,10 @@
 package config
 
-// TestMode specifies if is running in test mode
-var TestMode bool
+// MokeTestService specifies if is running in test mode
+var MokeTestService bool
+
+// MokeOAuth specifies if should run mocked OAuth IDP
+var MokeOAuth bool
 
 // LogLevel set n for
 // any Panic
@@ -102,15 +105,15 @@ var DirectoryServerFilter string
 var Rules []RuleConfig
 
 // Load loads the config
-func Load() (bool, error) {
+func Load() error {
 	definition := map[string]map[string]interface{}{
-		"version": {
-			"desc":    "Get the version.",
+		"mock-test-service": {
+			"desc":    "Specifies if is running in test mode.",
 			"type":    "bool",
 			"default": false,
 		},
-		"test-mode": {
-			"desc":    "Specifies if is running in test mode.",
+		"mock-oauth": {
+			"desc":    "Specifies if should run mocked OAuth IDP.",
 			"type":    "bool",
 			"default": false,
 		},
@@ -272,14 +275,15 @@ func Load() (bool, error) {
 	// Get config from file if defined
 	err := getConfigFromFile(&definition)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	// Get config from arguments
 	getConfigFromArguments(&definition)
 
 	// Set mostly priories config value
-	TestMode = getMostlyPrioriesConfigKey(definition["test-mode"]).(bool)
+	MokeTestService = getMostlyPrioriesConfigKey(definition["mock-test-service"]).(bool)
+	MokeOAuth = getMostlyPrioriesConfigKey(definition["mock-oauth"]).(bool)
 
 	LogLevel = getMostlyPrioriesConfigKey(definition["log-level"]).(int)
 	LogJSON = getMostlyPrioriesConfigKey(definition["log-json"]).(bool)
@@ -323,5 +327,5 @@ func Load() (bool, error) {
 	// Set http flag
 	IsHTTPS = (ServerKey != "" && ServerCrt != "")
 
-	return getMostlyPrioriesConfigKey(definition["version"]).(bool), nil
+	return nil
 }

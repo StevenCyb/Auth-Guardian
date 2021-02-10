@@ -130,7 +130,7 @@ func AuthorizationRuleMiddleware(next http.Handler) http.Handler {
 							"rule":     fmt.Sprintf("%+v", rule),
 						})
 
-						http.Error(w, "403 - Forbidden.", 403)
+						http.Error(w, "403 - Forbidden.", http.StatusForbidden)
 						return
 					}
 

@@ -4,8 +4,8 @@ import (
 	"auth-guardian/authmiddleware"
 	"auth-guardian/config"
 	"auth-guardian/logging"
+	"auth-guardian/mocked"
 	"auth-guardian/rules"
-	"auth-guardian/testservice"
 	"auth-guardian/upstream"
 	"fmt"
 	"log"
@@ -14,7 +14,7 @@ import (
 
 func main() {
 	// Load config
-	version, err := config.Load()
+	err := config.Load()
 	if err != nil {
 		log.Panic(&map[string]string{
 			"file":     "file.go",
@@ -23,18 +23,25 @@ func main() {
 			"details":  err.Error(),
 		})
 	}
-	if version {
-		fmt.Println("Version: 0.4.4")
-		return
-	}
 
 	// Run test service if test mode enabled
-	if config.TestMode {
+	if config.MokeTestService {
 		// Overrite config
 		config.Upstream = "http://localhost:3001"
 
 		// Run test service
-		go testservice.Run()
+		go mocked.Run()
+	}
+
+	// Run mock IDP if enabled
+	if config.MokeOAuth {
+		config.ClientID = "See you space"
+		config.ClientSecret = "cowboy"
+		config.AuthURL = "http://localhost:3002/auth"
+		config.TokenURL = "http://localhost:3002/token"
+		config.UserinfoURL = "http://localhost:3002/userinfo"
+
+		go mocked.RunMockOAuthIDP()
 	}
 
 	// Initialize rules middleware

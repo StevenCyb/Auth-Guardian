@@ -10,12 +10,12 @@ import (
 // getConfigFromFile sets the configuration from file
 func getConfigFromFile(definition *map[string]map[string]interface{}) error {
 	// Check config file exists
-	if _, err := os.Stat("config.yaml"); os.IsNotExist(err) {
+	if _, err := os.Stat("config.yml"); os.IsNotExist(err) {
 		return err
 	}
 
 	// Read config file
-	rawYaml, err := ioutil.ReadFile("config.yaml")
+	rawYaml, err := ioutil.ReadFile("config.yml")
 	if err != nil {
 		return err
 	}

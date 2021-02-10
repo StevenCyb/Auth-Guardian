@@ -1,6 +1,18 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.5] - 2021-02-10
+### Added
+- Add mock OAuth IDP
+- Add logo and animation for README
+### Changed
+- Change order in roadmap
+- Remove version argument
+- Moved templates to github
+- Rename postfix `yaml` to `yml`
+- move test-service to mocked package
+- rename `test-mode` argument to `mock-test-service`
+
 ## [0.4.4] - 2021-02-09
 ### Added
 - Implementation of disallow rules for rule middleware

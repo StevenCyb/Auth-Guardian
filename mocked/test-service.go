@@ -1,4 +1,4 @@
-package testservice
+package mocked
 
 import (
 	"encoding/json"
@@ -44,6 +44,13 @@ func Run() {
 
 		// Set cookies
 		mirrorData["cookies"] = r.Cookies()
+
+		// Set query
+		query := make(map[string]interface{})
+		for key, valueSlice := range r.URL.Query() {
+			query[key] = valueSlice
+		}
+		mirrorData["query"] = query
 
 		// Set header
 		header := make(map[string]interface{})

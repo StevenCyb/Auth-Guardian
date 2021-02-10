@@ -20,7 +20,7 @@ If you found a closed report which seems to be similar, then link it in your rep
 
 ### Suggesting Enhancements
 Please check the [roadmap](../README.md#roadmap) before suggesting an enhancement as you might find out that you don't need to create one.
-When you are creating an enhancement suggestion, please include as many details as possible and use [this template](templates/feature_request.md).
+When you are creating an enhancement suggestion, please include as many details as possible and use [this template](/.github/ISSUE_TEMPLATE/feature_request.md).
 
 ### Code Styleguide
 - Comment new functions with the name and a one-line description `// func-/struct-/interface-Name and your description`
