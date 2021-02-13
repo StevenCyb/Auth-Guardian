@@ -1,10 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.6] - 2021-02-13
+- Mock LDAP IDP
+### Changed 
+- Fixe and add some logging outputs
+- Change order in roadmap
+
 ## [0.4.5] - 2021-02-10
 ### Added
-- Add mock OAuth IDP
-- Add logo and animation for README
+- Mock OAuth IDP
+- Logo and animation for README
 ### Changed
 - Change order in roadmap
 - Remove version argument

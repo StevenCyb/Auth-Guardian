@@ -29,6 +29,13 @@ func main() {
 		// Overrite config
 		config.Upstream = "http://localhost:3001"
 
+		logging.Debug(&map[string]string{
+			"file":     "main.go",
+			"Function": "main",
+			"event":    "Run mocked test-service",
+			"url":      "http://localhost:3001",
+		})
+
 		// Run test service
 		go mocked.Run()
 	}
@@ -41,7 +48,30 @@ func main() {
 		config.TokenURL = "http://localhost:3002/token"
 		config.UserinfoURL = "http://localhost:3002/userinfo"
 
+		logging.Debug(&map[string]string{
+			"file":     "main.go",
+			"Function": "main",
+			"event":    "Run mocked OAuth IDP",
+		})
+
+		// Run OAuth IDP
 		go mocked.RunMockOAuthIDP()
+	} else if config.MokeLDAP {
+		config.DirectoryServerBaseDN = "dc=example,dc=com"
+		config.DirectoryServerBindDN = "cn=read-only-admin,dc=example,dc=com"
+		config.DirectoryServerPort = 3002
+		config.DirectoryServerHost = "localhost"
+		config.DirectoryServerBindPassword = "password"
+		config.DirectoryServerFilter = "(uid=%s)"
+
+		logging.Debug(&map[string]string{
+			"file":     "main.go",
+			"Function": "main",
+			"event":    "Run mocked LDAP IDP",
+		})
+
+		// Run LDAP IDP
+		go mocked.RunMockLDAPIDP()
 	}
 
 	// Initialize rules middleware

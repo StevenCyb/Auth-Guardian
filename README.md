@@ -16,21 +16,19 @@ The documentation is located [here](doc/DOC.md), changelog [here](doc/CHANGELOG.
 ![Overview](doc/media/overview.jpg)
 
 ## Roadmap
-### 0.4.5
-- Mock oauth
-### 0.4.6
-- Mock saml
 ### 0.4.7
-- Mock ldap
+- Mock SAML
 ### 0.4.8
+- More beautiful html redirect and 403 page
+### 0.4.9
 - Implement tests
 - Add tests to makefile (local test)
-### Release Alpha-0.4.8 
-### 0.4.9
-- More beautiful html redirect and 403 page
+### Release Alpha-0.4.9 
 ### 0.4.10
-- Create docker image
+- Create docker image building
+- Add docker compose example
+- Create pipeline to build image
 ### 0.4.12
-- Include Codecov
+- Create helm chart (if required)
 ### Release Beta-0.5.0
 ### Some improvements...

@@ -3,6 +3,9 @@ package config
 // MokeTestService specifies if is running in test mode
 var MokeTestService bool
 
+// MokeLDAP specifies if should run mocked LDAP IDP
+var MokeLDAP bool
+
 // MokeOAuth specifies if should run mocked OAuth IDP
 var MokeOAuth bool
 
@@ -109,6 +112,11 @@ func Load() error {
 	definition := map[string]map[string]interface{}{
 		"mock-test-service": {
 			"desc":    "Specifies if is running in test mode.",
+			"type":    "bool",
+			"default": false,
+		},
+		"mock-ldap": {
+			"desc":    "Specifies if should run mocked LDAP IDP.",
 			"type":    "bool",
 			"default": false,
 		},
@@ -283,6 +291,7 @@ func Load() error {
 
 	// Set mostly priories config value
 	MokeTestService = getMostlyPrioriesConfigKey(definition["mock-test-service"]).(bool)
+	MokeLDAP = getMostlyPrioriesConfigKey(definition["mock-ldap"]).(bool)
 	MokeOAuth = getMostlyPrioriesConfigKey(definition["mock-oauth"]).(bool)
 
 	LogLevel = getMostlyPrioriesConfigKey(definition["log-level"]).(int)

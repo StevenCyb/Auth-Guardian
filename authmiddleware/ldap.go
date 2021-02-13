@@ -20,7 +20,7 @@ var authenticator auth.Authenticator
 
 // InitLDAPhMiddleware initialize the LDAP middleware
 func InitLDAPhMiddleware() {
-	logging.Debug(&map[string]string{"file": "ldap.go", "Function": "InitSAMLhMiddleware", "event": "Initialize SAML middleware"})
+	logging.Debug(&map[string]string{"file": "ldap.go", "Function": "InitLDAPhMiddleware", "event": "Initialize LDAP middleware"})
 
 	// Create configuration
 	cfg := &ldap.Config{

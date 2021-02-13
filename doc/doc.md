@@ -45,6 +45,7 @@ They also show which of these options are mandatory.
 | --log-file             | string          | No       | disabled | Specifies the log file location (default = file logging disabled).                             |
 | --log-json             | bool            | No       | false    | Specifies if logs should have JSON format or formatted text.                                   |
 | --log-level            | int             | No       | 2        | Set n for {any Panic, n >= 1 Errors, n >= 2 Warnings, n >= 3 Infos, n >= 4 Debugs}.            |
+| --mock-ldap            | bool            | No       | false    | Specifies if should run mocked LDAP IPD.                                                       |
 | --mock-oauth           | bool            | No       | false    | Specifies if should run mocked OAuth IDP.                                                      |
 | --mock-test-service    | bool            | No       | false    | MokeTestService specifies if is running in test mode.                                          |
 | --redirect-url         | string          | *1       | -        | Specifies which redirect should be used.                                                       |
