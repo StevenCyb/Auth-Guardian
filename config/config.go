@@ -1,13 +1,16 @@
 package config
 
-// MokeTestService specifies if is running in test mode
-var MokeTestService bool
+// MockLDAP specifies if should run mocked LDAP IDP
+var MockLDAP bool
 
-// MokeLDAP specifies if should run mocked LDAP IDP
-var MokeLDAP bool
+// MockOAuth specifies if should run mocked OAuth IDP
+var MockOAuth bool
 
-// MokeOAuth specifies if should run mocked OAuth IDP
-var MokeOAuth bool
+// MockSAML specifies if should run mocked SAML IDP
+var MockSAML bool
+
+// MockTestService specifies if is running in test mode
+var MockTestService bool
 
 // LogLevel set n for
 // any Panic
@@ -77,6 +80,9 @@ var StateLifetime int
 // IdpMetadataURL specifies the URL to the IDP metadata
 var IdpMetadataURL string
 
+// IdpRegisterURL specifies the URL to register this SP
+var IdpRegisterURL string
+
 // SelfRootURL specifies the root URL to self
 var SelfRootURL string
 
@@ -110,11 +116,6 @@ var Rules []RuleConfig
 // Load loads the config
 func Load() error {
 	definition := map[string]map[string]interface{}{
-		"mock-test-service": {
-			"desc":    "Specifies if is running in test mode.",
-			"type":    "bool",
-			"default": false,
-		},
 		"mock-ldap": {
 			"desc":    "Specifies if should run mocked LDAP IDP.",
 			"type":    "bool",
@@ -122,6 +123,16 @@ func Load() error {
 		},
 		"mock-oauth": {
 			"desc":    "Specifies if should run mocked OAuth IDP.",
+			"type":    "bool",
+			"default": false,
+		},
+		"mock-saml": {
+			"desc":    "Specifies if should run mocked SAML IDP.",
+			"type":    "bool",
+			"default": false,
+		},
+		"mock-test-service": {
+			"desc":    "Specifies if is running in test mode.",
 			"type":    "bool",
 			"default": false,
 		},
@@ -225,6 +236,11 @@ func Load() error {
 			"type":    "string",
 			"default": "",
 		},
+		"saml-register-url": {
+			"desc":    "Specifies the URL to register this SP.",
+			"type":    "string",
+			"default": "",
+		},
 		"self-root-url": {
 			"desc":    "Specifies the root URL to self.",
 			"type":    "string",
@@ -290,9 +306,10 @@ func Load() error {
 	getConfigFromArguments(&definition)
 
 	// Set mostly priories config value
-	MokeTestService = getMostlyPrioriesConfigKey(definition["mock-test-service"]).(bool)
-	MokeLDAP = getMostlyPrioriesConfigKey(definition["mock-ldap"]).(bool)
-	MokeOAuth = getMostlyPrioriesConfigKey(definition["mock-oauth"]).(bool)
+	MockLDAP = getMostlyPrioriesConfigKey(definition["mock-ldap"]).(bool)
+	MockOAuth = getMostlyPrioriesConfigKey(definition["mock-oauth"]).(bool)
+	MockSAML = getMostlyPrioriesConfigKey(definition["mock-saml"]).(bool)
+	MockTestService = getMostlyPrioriesConfigKey(definition["mock-test-service"]).(bool)
 
 	LogLevel = getMostlyPrioriesConfigKey(definition["log-level"]).(int)
 	LogJSON = getMostlyPrioriesConfigKey(definition["log-json"]).(bool)
@@ -320,6 +337,7 @@ func Load() error {
 	StateLifetime = getMostlyPrioriesConfigKey(definition["state-lifetime"]).(int)
 
 	IdpMetadataURL = getMostlyPrioriesConfigKey(definition["saml-metadata-url"]).(string)
+	IdpRegisterURL = getMostlyPrioriesConfigKey(definition["saml-register-url"]).(string)
 	SelfRootURL = getMostlyPrioriesConfigKey(definition["self-root-url"]).(string)
 	SAMLCrt = getMostlyPrioriesConfigKey(definition["saml-crt"]).(string)
 	SAMLKey = getMostlyPrioriesConfigKey(definition["saml-key"]).(string)

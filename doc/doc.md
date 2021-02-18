@@ -47,11 +47,13 @@ They also show which of these options are mandatory.
 | --log-level            | int             | No       | 2        | Set n for {any Panic, n >= 1 Errors, n >= 2 Warnings, n >= 3 Infos, n >= 4 Debugs}.            |
 | --mock-ldap            | bool            | No       | false    | Specifies if should run mocked LDAP IPD.                                                       |
 | --mock-oauth           | bool            | No       | false    | Specifies if should run mocked OAuth IDP.                                                      |
-| --mock-test-service    | bool            | No       | false    | MokeTestService specifies if is running in test mode.                                          |
+| --mock-saml            | bool            | No       | false    | Specifies if should run mocked SAML IDP.                                                       |
+| --mock-test-service    | bool            | No       | false    | Specifies if is running in test mode.                                          |
 | --redirect-url         | string          | *1       | -        | Specifies which redirect should be used.                                                       |
 | --saml-crt             | string          | No 3*    | -        | Specifies the path to the crt file for SAML.                                                   |
 | --saml-key             | string          | No 3*    | -        | Specifies the path to the key file for SAML.                                                   |
 | --saml-metadata-url    | string          | No 3*    | -        | Specifies the URL to the IDP metadata.                                                         |
+| --saml-register-url    | string          | No       | -        | Specifies the URL to register this SP.                                                         |
 | --scopes               | string array    | No       | -        | Specifies optional requested permissions.                                                      |
 | --self-root-url        | string          | No 3*    | -        | Specifies the root URL to self.                                                                |
 | --server-crt           | string          | No       | -        | Specifies the path to the crt file for SAML.                                                   |

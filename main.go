@@ -25,7 +25,7 @@ func main() {
 	}
 
 	// Run test service if test mode enabled
-	if config.MokeTestService {
+	if config.MockTestService {
 		// Overrite config
 		config.Upstream = "http://localhost:3001"
 
@@ -41,7 +41,7 @@ func main() {
 	}
 
 	// Run mock IDP if enabled
-	if config.MokeOAuth {
+	if config.MockOAuth {
 		config.ClientID = "See you space"
 		config.ClientSecret = "cowboy"
 		config.AuthURL = "http://localhost:3002/auth"
@@ -56,7 +56,7 @@ func main() {
 
 		// Run OAuth IDP
 		go mocked.RunMockOAuthIDP()
-	} else if config.MokeLDAP {
+	} else if config.MockLDAP {
 		config.DirectoryServerBaseDN = "dc=example,dc=com"
 		config.DirectoryServerBindDN = "cn=read-only-admin,dc=example,dc=com"
 		config.DirectoryServerPort = 3002
@@ -72,6 +72,21 @@ func main() {
 
 		// Run LDAP IDP
 		go mocked.RunMockLDAPIDP()
+	} else if config.MockSAML {
+		config.SAMLCrt = "saml_mock.crt"
+		config.SAMLKey = "saml_mock.key"
+		config.IdpMetadataURL = "http://localhost:3002/metadata"
+		config.IdpRegisterURL = "http://localhost:3002/services/sp"
+		config.SelfRootURL = "http://localhost:3000"
+
+		logging.Debug(&map[string]string{
+			"file":     "main.go",
+			"Function": "main",
+			"event":    "Run mocked SAML IDP",
+		})
+
+		// Run SAML IDP
+		go mocked.RunMockSAMLIDP()
 	}
 
 	// Initialize rules middleware

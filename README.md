@@ -16,19 +16,29 @@ The documentation is located [here](doc/DOC.md), changelog [here](doc/CHANGELOG.
 ![Overview](doc/media/overview.jpg)
 
 ## Roadmap
-### 0.4.7
-- Mock SAML
 ### 0.4.8
-- More beautiful html redirect and 403 page
-### 0.4.9
 - Implement tests
-- Add tests to makefile (local test)
-### Release Alpha-0.4.9 
-### 0.4.10
-- Create docker image building
-- Add docker compose example
+  - Authentication
+    - LDAP
+      - Wrong credentials
+      - Correct credentials + Check if correct path and query
+    - SAML 
+      - Wrong credentials
+      - Correct credentials + Check if correct path and query
+    - OAuth
+      - Wrong credentials
+      - Correct credentials + Check if correct path and query
+  - Rules
+    - Whitelist
+    - Required
+    - Disallow
+- Add tests to makefile (local test) (create new test cert saml_mock.crt and saml_mock.key)
+### Release Alpha-0.4.8 
+### 0.4.9
+- Create docker image building (harden)
 - Create pipeline to build image
-### 0.4.12
-- Create helm chart (if required)
+### 0.4.10
+- Add docker compose example
+- Add helm example
 ### Release Beta-0.5.0
 ### Some improvements...

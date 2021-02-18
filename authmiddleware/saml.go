@@ -4,12 +4,14 @@ import (
 	"auth-guardian/config"
 	"auth-guardian/logging"
 	"auth-guardian/util"
+	"bytes"
 	"context"
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/xml"
 	"net/http"
 	"net/url"
 	"strings"
@@ -27,11 +29,11 @@ func InitSAMLhMiddleware() {
 	// Load key and certificate of this SP
 	keyPair, err := tls.LoadX509KeyPair(config.SAMLCrt, config.SAMLKey)
 	if err != nil {
-		logging.Fatal(&map[string]string{"file": "authmiddleware/saml.go", "Function": "InitSAMLhMiddleware", "error": "Loading of certificate failed"})
+		logging.Fatal(&map[string]string{"file": "authmiddleware/saml.go", "Function": "InitSAMLhMiddleware", "error": "Loading of certificate failed", "details": err.Error()})
 	}
 	keyPair.Leaf, err = x509.ParseCertificate(keyPair.Certificate[0])
 	if err != nil {
-		logging.Fatal(&map[string]string{"file": "authmiddleware/saml.go", "Function": "InitSAMLhMiddleware", "error": "Parsing of certificate failed"})
+		logging.Fatal(&map[string]string{"file": "authmiddleware/saml.go", "Function": "InitSAMLhMiddleware", "error": "Parsing of certificate failed", "details": err.Error()})
 	}
 
 	// Fetch IDP metadata
@@ -41,7 +43,7 @@ func InitSAMLhMiddleware() {
 	}
 	idpMetadata, err := samlsp.FetchMetadata(context.Background(), http.DefaultClient, *idpMetadataURL)
 	if err != nil {
-		logging.Fatal(&map[string]string{"file": "authmiddleware/saml.go", "Function": "InitSAMLhMiddleware", "error": "IDP metadata fetch failed"})
+		logging.Fatal(&map[string]string{"file": "authmiddleware/saml.go", "Function": "InitSAMLhMiddleware", "error": "IDP metadata fetch failed", "details": err.Error()})
 	}
 
 	// Parse the URL to self
@@ -61,6 +63,14 @@ func InitSAMLhMiddleware() {
 	})
 	if err != nil {
 		logging.Fatal(&map[string]string{"file": "authmiddleware/saml.go", "Function": "InitSAMLhMiddleware", "error": "Initialization of SAML-SP failed"})
+	}
+
+	// Register with the service provider
+	idpRegisterURL, err := url.Parse(config.IdpRegisterURL)
+	if err == nil {
+		logging.Debug(&map[string]string{"file": "oauth.go", "Function": "InitSAMLhMiddleware", "event": "Register service provider"})
+		spMetadataBuf, _ := xml.MarshalIndent(samlSP.ServiceProvider.Metadata(), "", "  ")
+		http.Post(idpRegisterURL.String(), "text/xml", bytes.NewReader(spMetadataBuf))
 	}
 }
 
@@ -104,6 +114,7 @@ func SAMLMiddleware(next http.Handler) http.Handler {
 				for key, value := range userinfo {
 					userinfoMap[key] = value
 				}
+
 				userinfoFlatData := util.NewFlatData()
 				userinfoFlatData.BuildFrom(userinfoMap)
 				session.Set("userinfo_fd", userinfoFlatData)

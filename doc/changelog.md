@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.7] - 2021-02-18
+- Mock SAML IDP
+- SAML authentication now support registration 
+### Changed
+- Fix copied word misspelling
+
 ## [0.4.6] - 2021-02-13
 - Mock LDAP IDP
 ### Changed 
