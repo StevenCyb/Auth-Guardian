@@ -59,7 +59,7 @@ func InitSAMLhMiddleware() {
 		Certificate:  keyPair.Leaf,
 		IDPMetadata:  idpMetadata,
 		SignRequest:  true,
-		CookieMaxAge: 5 * time.Minute,
+		CookieMaxAge: time.Duration(config.SessionLifetime) * time.Minute,
 	})
 	if err != nil {
 		logging.Fatal(&map[string]string{"file": "authmiddleware/saml.go", "Function": "InitSAMLhMiddleware", "error": "Initialization of SAML-SP failed"})
@@ -90,6 +90,11 @@ func SAMLMiddleware(next http.Handler) http.Handler {
 
 		// If its a callback
 		if strings.HasPrefix(r.URL.Path, "/saml/") {
+			logging.Debug(&map[string]string{
+				"file":     "saml.go",
+				"Function": "SAMLMiddleware",
+				"event":    "Process callback",
+			})
 			samlSP.ServeHTTP(w, r)
 			return
 		}

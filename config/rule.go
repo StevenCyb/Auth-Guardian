@@ -21,6 +21,9 @@ func (r *RuleConfig) HasValidType() bool {
 func (r *RuleConfig) FromMap(m map[interface{}]interface{}) {
 	for key, value := range m {
 		switch key.(string) {
+		case "type":
+			r.Type = value.(string)
+			break
 		case "method":
 			r.Method = InterfaceToStringSlice(value)
 			break

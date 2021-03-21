@@ -5,6 +5,7 @@ import (
 	"auth-guardian/util"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -14,7 +15,14 @@ var clientSecret string
 var authCode string
 
 // RunMockOAuthIDP runs a mocked OAuth IDP
-func RunMockOAuthIDP() {
+func RunMockOAuthIDP() *http.Server {
+	// Overrite config
+	config.ClientID = "See you space"
+	config.ClientSecret = "cowboy"
+	config.AuthURL = "http://localhost:3002/auth"
+	config.TokenURL = "http://localhost:3002/token"
+	config.UserinfoURL = "http://localhost:3002/userinfo"
+
 	scheme = "http"
 	if config.IsHTTPS {
 		scheme = "https"
@@ -88,5 +96,13 @@ func RunMockOAuthIDP() {
 		json.NewEncoder(w).Encode(userinfo)
 	})
 
-	http.ListenAndServe(":3002", mux)
+	server := &http.Server{Addr: ":3002", Handler: mux}
+
+	go func() {
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+			log.Panic(err)
+		}
+	}()
+
+	return server
 }

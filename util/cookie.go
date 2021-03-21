@@ -26,6 +26,7 @@ func SetCookie(w http.ResponseWriter, name string, value string, sameSite http.S
 		"lifetime":  fmt.Sprint(minuteLifetime * time.Minute),
 		"seed":      seed,
 	})
+
 	cookie := http.Cookie{
 		Name:     name + seed,
 		Value:    value,

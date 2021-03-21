@@ -15,16 +15,25 @@ import (
 )
 
 // RunMockSAMLIDP runs a mocked SAML IDP
-func RunMockSAMLIDP() {
+func RunMockSAMLIDP() *http.Server {
+	// Overrite config
+	config.SAMLCrt = "saml_mock.crt"
+	config.SAMLKey = "saml_mock.key"
+	config.IdpMetadataURL = "http://localhost:3002/metadata"
+	config.IdpRegisterURL = "http://localhost:3002/services/sp"
+	config.SelfRootURL = "http://localhost:3000"
+
 	keyRaw, err := ioutil.ReadFile(config.SAMLKey)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	var key = func() crypto.PrivateKey {
 		b, _ := pem.Decode([]byte(keyRaw))
 		k, _ := x509.ParsePKCS1PrivateKey(b.Bytes)
 		return k
 	}()
+
 	crtRaw, err := ioutil.ReadFile(config.SAMLCrt)
 	if err != nil {
 		log.Fatal(err)
@@ -47,7 +56,8 @@ func RunMockSAMLIDP() {
 	}
 
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("SpiritedAway"), bcrypt.DefaultCost)
-	err = idpServer.Store.Put("/users/noface", samlidp.User{Name: "noface",
+	err = idpServer.Store.Put("/users/noface", samlidp.User{
+		Name:           "noface",
 		HashedPassword: hashedPassword,
 		Groups:         []string{"Spirit", "Antagonist"},
 		Email:          "no.face@local.com",
@@ -61,5 +71,13 @@ func RunMockSAMLIDP() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/", idpServer)
-	http.ListenAndServe(":3002", mux)
+	server := &http.Server{Addr: ":3002", Handler: mux}
+
+	go func() {
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+			log.Panic(err)
+		}
+	}()
+
+	return server
 }

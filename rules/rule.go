@@ -85,7 +85,7 @@ func (vv *ValueValidator) Match(fd *util.FlatData) bool {
 
 	// Unknown
 	default:
-		log.Fatal(&map[string]string{"file": "flatdata.go", "Function": "recursiveBuild", "error": "Unknown type " + fmt.Sprintf("%T", data), "data": fmt.Sprintf("%+v", data)})
+		log.Fatal(&map[string]string{"file": "rule.go", "Function": "Match", "error": "Unknown type " + fmt.Sprintf("%T", data), "data": fmt.Sprintf("%+v", data)})
 	}
 
 	return false

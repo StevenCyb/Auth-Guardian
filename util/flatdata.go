@@ -109,7 +109,11 @@ func (t *FlatData) recursiveBuild(prefix string, data interface{}) {
 
 	// Interface related
 	case []interface{}:
-		t.Items[prefix] = data
+		slice := []string{}
+		for _, x := range data.([]interface{}) {
+			slice = append(slice, fmt.Sprintf("%v", x))
+		}
+		t.Items[prefix] = slice
 		break
 	case map[string]interface{}:
 		for key, value := range data.(map[string]interface{}) {
@@ -119,6 +123,6 @@ func (t *FlatData) recursiveBuild(prefix string, data interface{}) {
 
 	// Unknown
 	default:
-		log.Fatal(&map[string]string{"file": "flatdata.go", "Function": "recursiveBuild", "error": "Unknown type " + fmt.Sprintf("%T", data), "data": fmt.Sprintf("%+v", data)})
+		log.Fatal(&map[string]string{"file": "flatdata.go", "Function": "recursiveBuild", "error": "Unknown type \"" + fmt.Sprintf("%T", data) + "\"", "data": fmt.Sprintf("%+v", data)})
 	}
 }

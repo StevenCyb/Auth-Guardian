@@ -11,7 +11,7 @@ import (
 func getConfigFromFile(definition *map[string]map[string]interface{}) error {
 	// Check config file exists
 	if _, err := os.Stat("config.yml"); os.IsNotExist(err) {
-		return err
+		return nil
 	}
 
 	// Read config file

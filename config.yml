@@ -5,7 +5,7 @@
 # server-crt: ""
 # server-key: ""
 # upstream: ""
-# upstream-cors: ""
+# upstream-cors: false
 # forward-userinfo: false
 # forward-access-token: false
 # session-lifetime: 5
@@ -18,8 +18,18 @@
 # userinfo-url: ""
 # state-lifetime: 5
 # saml-metadata-url: ""
+# saml-register-url: ""
 # self-root-url: ""
-# whitelist-rule: []
-# whitelist-rule:
-# - method: []
+# saml-crt: ""
+# saml-key: ""
+# ds-base-dn: ""
+# ds-bind-dn: ""
+# ds-port: 389
+# ds-host: ""
+# ds-bind-password: ""
+# ds-filter: ""
+# rules: []
+# rules:
+# - type: ""
+#   method: []
 #   path: ""

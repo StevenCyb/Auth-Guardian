@@ -67,11 +67,10 @@ func getMostlyPrioriesConfigKey(option map[string]interface{}) interface{} {
 		// Parse config file
 	} else if value, ok := option["file"]; ok {
 		if option["type"] == "int" {
-			i, _ := strconv.Atoi(value.(string))
-			return i
+			return value.(int)
 
 		} else if option["type"] == "bool" {
-			return value.(string) == "true"
+			return value.(bool)
 
 		} else if option["type"] == "string_array" {
 			return InterfaceToStringSlice(value)
@@ -94,7 +93,7 @@ func getMostlyPrioriesConfigKey(option map[string]interface{}) interface{} {
 			return rules
 
 		} else if option["type"] == "string" {
-			return value.([]map[string]string)
+			return value.(string)
 		}
 
 		// Parse environment

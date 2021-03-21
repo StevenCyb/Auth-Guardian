@@ -1,16 +1,21 @@
 package mocked
 
 import (
+	"auth-guardian/config"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 )
 
-// Run the test service
-func Run() {
+// RunMockTestService runs the test service
+func RunMockTestService() *http.Server {
+	// Overrite config
+	config.Upstream = "http://localhost:3001"
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/style.css", func(w http.ResponseWriter, r *http.Request) {
@@ -69,5 +74,13 @@ func Run() {
 		json.NewEncoder(w).Encode(mirrorData)
 	})
 
-	http.ListenAndServe(":3001", mux)
+	server := &http.Server{Addr: ":3001", Handler: mux}
+
+	go func() {
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+			log.Panic(err)
+		}
+	}()
+
+	return server
 }

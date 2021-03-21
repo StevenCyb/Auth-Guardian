@@ -1,0 +1,42 @@
+log-level: 1
+log-json: true
+log-file: "/tmp/log.txt"
+mock-ldap: true
+mock-oauth: true
+mock-saml: true
+mock-test-service: true
+listen: ":2021"
+server-crt: "server.crt"
+server-key: "server.key"
+upstream: "localhost:3333"
+upstream-cors: true
+forward-userinfo: true
+forward-access-token: true
+session-lifetime: 2
+client-id: "aaa"
+client-secret: "bbb"
+scopes: 
+ - aaa
+ - bbb
+redirect-url: "aaa"
+auth-url: "bbb"
+token-url: "ccc"
+userinfo-url: "ddd"
+state-lifetime: 3
+saml-metadata-url: "aaa"
+saml-register-url: "bbb"
+self-root-url: "ccc"
+saml-crt: "ddd"
+saml-key: "eee"
+ds-base-dn: "fff"
+ds-bind-dn: "ggg"
+ds-port: 4
+ds-host: "hhh"
+ds-bind-password: "iii"
+ds-filter: "jjj"
+rules:
+ - type: "whitelist"
+   method: 
+    - "POST"
+    - "GET"
+   path: "/*"

@@ -1,6 +1,23 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.8] - 2021-03-21
+### Added
+- Integration tests
+- Check if argument definitions already set
+### Changed
+- Update readme: links, third-party package section + add LDAP hint
+- Mocked servers now return server/listener so we can close them on test routines
+- Move config override of mocking services to run functions
+- Move server stuff to separated package
+- Update config example
+- Improve some logging
+- If configuration file not exists - skip instead of throwing an error
+- Improve rule parse types
+- Improve flatdata parse types
+- Mock services now override their configuration on initialization
+- Some small improvements
+
 ## [0.4.7] - 2021-02-18
 - Mock SAML IDP
 - SAML authentication now support registration 
