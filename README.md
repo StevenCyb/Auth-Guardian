@@ -14,9 +14,9 @@ The rule-based authorization is designed to be as flexible as possible.
 ![Overview](doc/media/overview.jpg)
 
 ## Links:
-* [Documentation](doc/DOC.md)
-* [Changelog](doc/CHANGELOG.md) 
-* [Contribution Guidelines](doc/CONTRIBUTING.md).
+* [Documentation](/doc/doc.md)
+* [Changelog](/doc/changelog.md) 
+* [Contribution Guidelines](/doc/contributing.md).
 
 ## Used Third-Party Library
 | Package                       | Version                            | Used for                                     |
