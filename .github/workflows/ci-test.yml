@@ -3,13 +3,13 @@ name: ci-test
 on:
   push:
     branches:
-      - main
+      - master
       - 'feature-**'
       - 'bugfix-**'
       - 'hotfix-**'
   pull_request:
     branches:
-      - main
+      - master
       - 'feature-**'
       - 'bugfix-**'
       - 'hotfix-**'
