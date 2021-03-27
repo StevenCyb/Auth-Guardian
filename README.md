@@ -30,9 +30,6 @@ The rule-based authorization is designed to be as flexible as possible.
 | gopkg.in/yaml.v2              | v2.4.0                             | the parsing of the configuration file        |
 
 ## Roadmap
-### 0.4.9
-- Create docker image building (harden)
-- Create pipeline to build image
 ### 0.4.10
 - Add docker compose example
 - Add helm example

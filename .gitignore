@@ -1,6 +1,6 @@
 *.crt
 *.key
 config-local.yaml
-run-local*.sh
+run-*.sh
 keycloak*
 note.md

@@ -1,0 +1,84 @@
+name: ci-release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version: [ 1.15 ]
+        os: [ ubuntu-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Create certs
+      run:  |
+        openssl genrsa -out server.key 2048
+        openssl req -new -x509 -sha256 -key server.key -out server.crt -days 365 \
+        -new \
+        -newkey rsa:4096 \
+        -days 365 \
+        -nodes \
+        -x509 \
+        -subj "//C=DE//ST=Steven//L=Somewhere//O=Dis//CN=localhost" \
+        -keyout localhost 
+        openssl genrsa -out saml_mock.key 2048
+        mv server.key test/server.key
+        mv server.crt test/server.crt
+
+        openssl req -new -x509 -sha256 -key saml_mock.key -out saml_mock.crt -days 365 \
+        -new \
+        -newkey rsa:4096 \
+        -days 365 \
+        -nodes \
+        -x509 \
+        -subj "//C=DE//ST=Steven//L=Somewhere//O=Dis//CN=localhost" \
+        -keyout localhost 
+        mv saml_mock.key test/saml_mock.key
+        mv saml_mock.crt test/saml_mock.crt
+    - name: Clear cache
+      run: go clean -testcache
+    - name: Run test
+      run: go test ./test -v --failfast
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    -  name: Set up QEMU
+       uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1 
+      with:
+        name: auth-guardian
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Prepare
+      id: prep
+      run: |
+        DOCKER_IMAGE=stevencyb/auth-guardian
+        VERSION=edge
+        if [[ $GITHUB_REF == refs/tags/* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+        fi
+        if [ "${{ github.event_name }}" = "schedule" ]; then
+          VERSION=nightly
+        fi
+        TAGS="${DOCKER_IMAGE}:${VERSION}"
+        echo ::set-output name=tags::${TAGS}
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: ${{ steps.prep.outputs.tags }}
+    - name: Image digest
+      run: echo ${{ steps.docker_build.outputs.digest }}

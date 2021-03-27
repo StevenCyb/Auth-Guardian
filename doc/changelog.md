@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.4.9] - 2021-03-27
+### Added
+- Github-Action (CI) to build and publish image to DockerHub
+- Dockerfile to build image
+- Github-Action (CI) to run test
+
 ## [0.4.8] - 2021-03-21
 ### Added
 - Integration tests
