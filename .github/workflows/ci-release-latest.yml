@@ -1,8 +1,12 @@
-name: ci-release
+name: ci-release-latest
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   test:
@@ -61,24 +65,11 @@ jobs:
         name: auth-guardian
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Prepare
-      id: prep
-      run: |
-        DOCKER_IMAGE=stevencyb/auth-guardian
-        VERSION=edge
-        if [[ $GITHUB_REF == refs/tags/* ]]; then
-          VERSION=${GITHUB_REF#refs/tags/}
-        fi
-        if [ "${{ github.event_name }}" = "schedule" ]; then
-          VERSION=nightly
-        fi
-        TAGS="${DOCKER_IMAGE}:${VERSION}"
-        echo ::set-output name=tags::${TAGS}
     - name: Build and push
       id: docker_build
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: ${{ steps.prep.outputs.tags }}
+        tags: stevencyb/auth-guardian:latest
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}

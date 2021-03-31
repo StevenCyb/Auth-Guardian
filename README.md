@@ -30,9 +30,5 @@ The rule-based authorization is designed to be as flexible as possible.
 | gopkg.in/yaml.v2              | v2.4.0                             | the parsing of the configuration file        |
 
 ## Roadmap
-### 0.4.10
-- Add docker compose example
-- Add helm example
-- Change logo
-### Release Beta-0.5.0
-### Some improvements...
+### 0.5.1
+Fix test bug on SAML mock service

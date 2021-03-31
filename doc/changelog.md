@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.5.0-beta] - 2021-03-31
+### Added
+- Add examples "how to run it"
+- Github-Action (CI) to build and publish latest-image to DockerHub
+### Changed
+- Now support config on configmap path
+
 ## [0.4.9] - 2021-03-27
 ### Added
 - Github-Action (CI) to build and publish image to DockerHub

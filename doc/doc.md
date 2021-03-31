@@ -15,6 +15,10 @@
 4.2) [Whitelist rules](#whitelist-rules) \
 4.3) [Required rules](#required-rules) \
 4.4) [Disallow rules](#disallow-rules)
+5) [How to deploy](#how-to-deploy) \
+5.1) [Run on Docker via Terminal](#run-on-docker-via-terminal) \
+5.2) [Run on Docker via Docker Compose](#run-on-docker-via-docker-compose) \
+5.3) [Run as Sidecar on Kubernetes using Helm](#run-as-sidecar-on-kubernetes-using-helm)
 
 ## How to configure
 The configuration can be done using environment variables, arguments and a configuration file.
@@ -352,4 +356,192 @@ rules:
 ```bash
 go run main.go \
 --rules='{"type": "disallow", "path": "^(/)$", "userinfo": {"company.group": "^externals$"}'
+```
+
+## How to deploy
+### Run on Docker via Terminal
+The easiest way to run this project (non production) is to run it via `docker run`.
+Where port `8080` is used by the Auth-Guardian by default, but we map it to `3000`.
+This example uses a mock OAuth IDP (without login prompt) which runs on port `3002`.
+```bash
+# Create a network
+docker network create testnetwork
+# Run sample-service
+docker run -d --network testnetwork --hostname sample tutum/hello-world
+# Run Auth-Guardian
+docker run -d --network testnetwork -p 3002:3002 -dp 3000:8080 stevencyb/auth-guardian:latest \
+--upstream=http://sample \
+--mock-oauth=true \
+--forward-access-token=true \
+--forward-userinfo=true
+```
+### Run on Docker via Docker Compose
+`docker-compose up` `docker-compose down`
+```yml
+version: '3'
+services:
+  sample:
+    image: tutum/hello-world
+    container_name: sample
+    hostname: sample
+    restart: always
+    networks:
+      - backend
+  proxy:
+    image: stevencyb/auth-guardian:latest
+    container_name: auth-guardian
+    restart: always
+    environment:
+     - upstream=http://sample
+     - mock-oauth=true
+     - forward-access-token=true
+     - forward-userinfo=true
+    ports:
+      - "3000:8080"
+      - "3002:3002"
+    depends_on:
+      - sample
+    networks:
+      - frontend
+      - backend
+networks:
+  frontend:
+    internal: false
+  backend:
+    internal: true
+```
+### Run as Sidecar on Kubernetes using Helm
+The following steps describe how to modify a helm chart to add Auth-Guardian.
+
+First add default values to `values.yaml` e.g.:
+```yml
+authGuardian:
+  image:
+    repository: stevencyb/auth-guardian:latest
+    pullPolicy: IfNotPresent
+    tag: latest
+
+  config:
+    --upstream: http://localhost:8081
+    --mock-oauth: true
+    --forward-access-token: true
+    --forward-userinfo: true
+    
+  service:
+    type: ClusterIP
+    port: 3000
+
+  ingress:
+    annotations: {}
+    hosts:
+      - host: chart-example.local
+        paths: 
+          - /
+    tls: []
+```
+
+Add a `ag-configmap.yaml` for the configuration.
+```yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-ag-configmap
+data:
+  config.yaml: |-
+    {{- toYaml .Values.authGuardian.config | printf "%s" | nindent 4 }}
+```
+
+Now lets add a the service - `ag-service.yaml`.
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "product.fullname" . }}
+  labels:
+    {{- include "product.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.authGuardian.service.type }}
+  ports:
+    - port: 80
+      targetPort: {{ .Values.authGuardian.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "product.selectorLabels" . | nindent 4 }}
+```
+
+Afterwards add a ingress - `ag-ingress.yaml`.
+```yml
+{{- $fullName := include "auth-guardian.fullname" . -}}
+{{- $svcPort := .Values.authGuardian.service.port -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "product.labels" . | nindent 4 }}
+  {{- with .Values.authGuardian.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.authGuardian.ingress.tls }}
+  tls:
+    {{- range .Values.authGuardian.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .Values.authGuardian.ingress.secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.authGuardian.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .Values.authGuardian.ingress.paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+          {{- end }}
+    {{- end }}
+```
+
+At the end add the Auth-Guardian container to your `deployment.yaml`.
+```yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  ...
+spec:
+  ...
+  template:
+    ...
+    spec:
+      ...
+      containers:
+        - name: {{ .Chart.Name }}
+          ...
+        - name: {{ .Chart.Name }}-proxy
+          image: "{{ .Values.authGuardian.image.repository }}:{{ .Values.authGuardian.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.authGuardian.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.authGuardian.service.port }}
+              protocol: TCP
+          securityContext: 
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: ag-config-volume
+              mountPath: /etc/config/
+      volumes:
+        - name: ag-config-volume
+          configMap:
+            name: {{ .Release.Name }}-ag-configmap
 ```

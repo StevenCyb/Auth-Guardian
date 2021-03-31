@@ -7,15 +7,33 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// findFirstExistingFile return first existing file in slice
+func findFirstExistingFile(fileSlice []string) string {
+	for _, path := range fileSlice {
+		if _, err := os.Stat(path); err == nil {
+			return path
+		}
+	}
+	return "config.yml"
+}
+
 // getConfigFromFile sets the configuration from file
 func getConfigFromFile(definition *map[string]map[string]interface{}) error {
+	// Find config file to use by prio
+	path := findFirstExistingFile([]string{
+		"/etc/config/config.yml",
+		"/etc/config/config.yaml",
+		"config.yml",
+		"config.yaml",
+	})
+
 	// Check config file exists
-	if _, err := os.Stat("config.yml"); os.IsNotExist(err) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil
 	}
 
 	// Read config file
-	rawYaml, err := ioutil.ReadFile("config.yml")
+	rawYaml, err := ioutil.ReadFile(path)
 	if err != nil {
 		return err
 	}
