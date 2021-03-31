@@ -1,15 +1,7 @@
 # Auth-Guardian
-
-<table><tr>
-<td>
 Auth-Guardian is an <b>auth</b>entication and rules based <b>auth</b>orization reverse proxy.
 Authentication can be provided via generic OAuth, generic SAML or LDAP.
 The rule-based authorization is designed to be as flexible as possible.
-</td>
-<td>
-  <img src="doc/media/animation.gif">
-</td>
-</tr></table>
 
 ![Overview](doc/media/overview.jpg)
 
