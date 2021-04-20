@@ -11,7 +11,7 @@ type FlatData struct {
 	Items map[string]interface{}
 }
 
-// NewFlatData creates new NewFlatData object
+// NewFlatData creates new FlatData object
 func NewFlatData() *FlatData {
 	fd := FlatData{Items: map[string]interface{}{}}
 	return &fd
@@ -25,7 +25,7 @@ func (t *FlatData) String() string {
 	return s
 }
 
-// Search some desc
+// Search for item on path
 func (t *FlatData) Search(path string) (interface{}, error) {
 	if path == "" {
 		return "", errors.New("Path not found")
@@ -38,7 +38,7 @@ func (t *FlatData) Search(path string) (interface{}, error) {
 	return "", errors.New("Path not found")
 }
 
-// BuildFrom some desc
+// BuildFrom fill FlatData object with map data
 func (t *FlatData) BuildFrom(data map[string]interface{}) {
 	for key, value := range data {
 		t.recursiveBuild(key, value)
