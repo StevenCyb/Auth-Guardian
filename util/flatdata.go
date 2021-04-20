@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-// FlatData some desc
+// FlatData holds data in flat structure
 type FlatData struct {
 	Items map[string]interface{}
 }
